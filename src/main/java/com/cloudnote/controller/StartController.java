@@ -20,10 +20,7 @@ import java.util.ResourceBundle;
 
 public class StartController {
     DatabaseConnection conn = new DatabaseConnection();
-    PreparedStatement ps;
-    Statement st;
-    ResultSet rs;
-    Connection con;
+
 
     ObservableList<UserModel> listUser = FXCollections.observableArrayList();
 
@@ -94,35 +91,35 @@ public class StartController {
             return;
         }
         // записываем пароль в виде хэша
+        String sql = "SELECT * FROM users WHERE login = ? AND password = ?";
         String hashPass = PasswordHasher.hashPassword(pass);
-        try {
-            String sql = "SELECT * FROM users WHERE login = ? AND password = ?";
-            con = conn.getCon();
-            ps = con.prepareStatement(sql);
+        try (Connection con = conn.getCon();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, login);
             ps.setString(2, hashPass);
-            rs = ps.executeQuery();
-            if (rs.next()){
-                String username = rs.getString("username");
-                TfSighInLogin.clear();
-                TfSighInPass.clear();
-                // переход в новое окно
-                PFirst.setVisible(true);
-                PSighIn.setVisible(false);
-                PSighUp.setVisible(false);
-                LError.setVisible(false);
-            }
-            else{
-                LError.setText("неправильный логин или пароль");
-                LError.setVisible(true);
-                TfSighInLogin.clear();
-                TfSighInPass.clear();
-            }
 
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()){
+                    String username = rs.getString("username");
+                    TfSighInLogin.clear();
+                    TfSighInPass.clear();
+                    // переход в новое окно
+                    PFirst.setVisible(true);
+                    PSighIn.setVisible(false);
+                    PSighUp.setVisible(false);
+                    LError.setVisible(false);
+                }
+                else{
+                    LError.setText("неправильный логин или пароль");
+                    LError.setVisible(true);
+                    TfSighInLogin.clear();
+                    TfSighInPass.clear();
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @FXML
@@ -143,32 +140,31 @@ public class StartController {
                 isUsernameValid = false;
                 return;
             }
+            String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+            try (Connection con = conn.getCon();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
 
-            try {
-                String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
-                con = conn.getCon();
-                ps = con.prepareStatement(sql);
                 ps.setString(1, username);
-                rs = ps.executeQuery();
 
-                if (rs.next()) {
-                    int count = rs.getInt(1);
-                    if (count > 0) {
-                        LUsernameStatus.setText("имя занято");
-                        LUsernameStatus.setVisible(true);
-                        isUsernameValid = false;
-                    } else {
-                        LUsernameStatus.setVisible(false);
-                        isUsernameValid = true;
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt(1);
+                        if (count > 0) {
+                            LUsernameStatus.setText("имя занято");
+                            LUsernameStatus.setVisible(true);
+                            isUsernameValid = false;
+                        } else {
+                            LUsernameStatus.setVisible(false);
+                            isUsernameValid = true;
+                        }
                     }
                 }
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
-        // проверка логина
 
+        // проверка логина
         TfSighUpLogin.textProperty().addListener((observable, oldValue, newValue) -> {
             String login = newValue.trim();
 
@@ -178,30 +174,30 @@ public class StartController {
                 isLoginValid = false;
                 return;
             }
+            String sql = "SELECT COUNT(*) FROM users WHERE login = ?";
+            try (Connection con = conn.getCon();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
 
-            try {
-                String sql = "SELECT COUNT(*) FROM users WHERE login = ?";
-                con = conn.getCon();
-                ps = con.prepareStatement(sql);
                 ps.setString(1, login);
-                rs = ps.executeQuery();
 
-                if (rs.next()) {
-                    int count = rs.getInt(1);
-                    if (count > 0) {
-                        LLoginStatus.setText("логин занят");
-                        LLoginStatus.setVisible(true);
-                        isLoginValid = false;
-                    } else {
-                        LLoginStatus.setVisible(false);
-                        isLoginValid = true;
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt(1);
+                        if (count > 0) {
+                            LLoginStatus.setText("логин занят");
+                            LLoginStatus.setVisible(true);
+                            isLoginValid = false;
+                        } else {
+                            LLoginStatus.setVisible(false);
+                            isLoginValid = true;
+                        }
                     }
                 }
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
+
         // проверка пароля
         TfSighUpPass.textProperty().addListener((observable, oldValue, newValue) -> {
             String pass = TfSighUpPass.getText().trim();
@@ -212,17 +208,31 @@ public class StartController {
             } else {
                 LPasswordStatus.setVisible(false);
                 isPasswordValid = true;
-
             }
         });
-
     }
+
 
 
     @FXML
     private void handleClickSighUpOk() {
         if(isPasswordValid && isUsernameValid && isLoginValid){
+            String sql = "INSERT INTO users (username, login, password) VALUES (?, ?, ?)";
+            try (Connection con = conn.getCon();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
 
+                ps.setString(1, TfSighUpUsername.getText());
+                ps.setString(2, TfSighUpLogin.getText());
+                ps.setString(3, PasswordHasher.hashPassword(TfSighUpPass.getText()));
+
+                int rowsAdd = ps.executeUpdate();
+                if(rowsAdd > 0){
+                    System.out.println("Регистрация прошла успешно");
+                    handleClickSighUpCancel(); // очистить поля после регистрации
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -230,6 +240,10 @@ public class StartController {
     private void handleClickSighUpCancel() {
         PFirst.setVisible(true);
         PSighIn.setVisible(false);
+        PSighUp.setVisible(false);
+        TfSighUpUsername.clear();
+        TfSighUpLogin.clear();
+        TfSighUpPass.clear();
         PSighUp.setVisible(false);
     }
 }
