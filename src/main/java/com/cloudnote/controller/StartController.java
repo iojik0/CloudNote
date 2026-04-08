@@ -27,6 +27,10 @@ public class StartController {
 
     ObservableList<UserModel> listUser = FXCollections.observableArrayList();
 
+    boolean isUsernameValid = false;
+    boolean isPasswordValid = false;
+    boolean isLoginValid = false;
+
     // Панели (Pane)
     @FXML private Pane PMain;
     @FXML private Pane PFirst;
@@ -43,7 +47,9 @@ public class StartController {
     @FXML private TextField TfSighUpPass;
     @FXML private Button BtSighUpOk;
     @FXML private Button BtSighUpCancel;
-
+    @FXML private Label LUsernameStatus;
+    @FXML private Label LLoginStatus;
+    @FXML private Label LPasswordStatus;
     // Поля для входа
     @FXML private Label LError;
     @FXML private TextField TfSighInLogin;
@@ -52,9 +58,8 @@ public class StartController {
     @FXML private Button BtSighInCancel;
 
 
-    public void initialize(URL url, ResourceBundle rb) {
-
-
+    public void initialize() {
+        valueChecking();
     }
 
     // Методы-обработчики событий
@@ -70,6 +75,7 @@ public class StartController {
         PFirst.setVisible(false);
         PSighIn.setVisible(false);
         PSighUp.setVisible(true);
+
     }
 
 
@@ -126,9 +132,98 @@ public class StartController {
         PSighUp.setVisible(false);
     }
 
+    private void valueChecking() {
+        //проверка юзернейма
+        TfSighUpUsername.textProperty().addListener((observable, oldValue, newValue) -> {
+            String username = newValue.trim();
+
+            if (username.length() < 4) {
+                LUsernameStatus.setText("имя должно состоять минимум из 4 символов");
+                LUsernameStatus.setVisible(true);
+                isUsernameValid = false;
+                return;
+            }
+
+            try {
+                String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+                con = conn.getCon();
+                ps = con.prepareStatement(sql);
+                ps.setString(1, username);
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    if (count > 0) {
+                        LUsernameStatus.setText("имя занято");
+                        LUsernameStatus.setVisible(true);
+                        isUsernameValid = false;
+                    } else {
+                        LUsernameStatus.setVisible(false);
+                        isUsernameValid = true;
+                    }
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        // проверка логина
+
+        TfSighUpLogin.textProperty().addListener((observable, oldValue, newValue) -> {
+            String login = newValue.trim();
+
+            if (login.length() < 5) {
+                LLoginStatus.setText("логин должен состоять минимум из 5 символов");
+                LLoginStatus.setVisible(true);
+                isLoginValid = false;
+                return;
+            }
+
+            try {
+                String sql = "SELECT COUNT(*) FROM users WHERE login = ?";
+                con = conn.getCon();
+                ps = con.prepareStatement(sql);
+                ps.setString(1, login);
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    if (count > 0) {
+                        LLoginStatus.setText("логин занят");
+                        LLoginStatus.setVisible(true);
+                        isLoginValid = false;
+                    } else {
+                        LLoginStatus.setVisible(false);
+                        isLoginValid = true;
+                    }
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        // проверка пароля
+        TfSighUpPass.textProperty().addListener((observable, oldValue, newValue) -> {
+            String pass = TfSighUpPass.getText().trim();
+            if (newValue.length() < 5) {
+                LPasswordStatus.setText("пароль должен состоять минимум из 5 символов");
+                LPasswordStatus.setVisible(true);
+                isPasswordValid = false;
+            } else {
+                LPasswordStatus.setVisible(false);
+                isPasswordValid = true;
+
+            }
+        });
+
+    }
+
+
     @FXML
     private void handleClickSighUpOk() {
+        if(isPasswordValid && isUsernameValid && isLoginValid){
 
+        }
     }
 
     @FXML
