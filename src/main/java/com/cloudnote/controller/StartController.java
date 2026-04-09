@@ -6,11 +6,15 @@ import com.cloudnote.utils.PasswordHasher;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class StartController {
@@ -28,6 +32,7 @@ public class StartController {
     @FXML private Pane PFirst;
     @FXML private Pane PSignUp;
     @FXML private Pane PSignIn;
+    @FXML private BorderPane BpContent;
 
     // Кнопки на главном экране
     @FXML private Button BtSignIn;
@@ -100,10 +105,12 @@ public class StartController {
                     TfSignInLogin.clear();
                     TfSignInPass.clear();
                     // переход в новое окно
-                    PFirst.setVisible(true);
                     PSignIn.setVisible(false);
                     PSignUp.setVisible(false);
                     LError.setVisible(false);
+                    getContent();
+                    BpContent.setVisible(true);
+
                 }
                 else{
                     LError.setText("неправильный логин или пароль");
@@ -224,6 +231,9 @@ public class StartController {
                 if(rowsAdd > 0){
                     System.out.println("Регистрация прошла успешно");
                     handleClickSignUpCancel(); // очистить поля после регистрации
+                    //переход в основное окно
+                    getContent();
+                    BpContent.setVisible(true);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -241,4 +251,20 @@ public class StartController {
         TfSignUpPass.clear();
         PSignUp.setVisible(false);
     }
+    public void getContent(){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudnote/view/ContentView.fxml"));
+            AnchorPane loadedPane = loader.load(); // Загружаем как AnchorPane
+
+            // 2. Очищаем старый контент (опционально)
+            BpContent.getChildren().clear();
+
+            // 3. Добавляем загруженный Pane в текущий
+            BpContent.getChildren().add(loadedPane);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
