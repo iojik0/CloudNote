@@ -26,8 +26,8 @@
                 <RowConstraints maxHeight="46.5" minHeight="10.0" prefHeight="45.5" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="BtsignIn" mnemonicParsing="false" onAction="#handleClickSighIn" prefHeight="25.0" prefWidth="110.0" text="Вход" GridPane.rowIndex="2" />
-                  <Button fx:id="BtSighUp" mnemonicParsing="false" onAction="#handleClickSighUp" prefHeight="25.0" prefWidth="127.0" text="Регистрация" GridPane.rowIndex="3" />
+                  <Button fx:id="BtsignIn" mnemonicParsing="false" onAction="#handleClickSignIn" prefHeight="25.0" prefWidth="110.0" text="Вход" GridPane.rowIndex="2" />
+                  <Button fx:id="BtSignUp" mnemonicParsing="false" onAction="#handleClickSignUp" prefHeight="25.0" prefWidth="127.0" text="Регистрация" GridPane.rowIndex="3" />
                   <Pane prefHeight="200.0" prefWidth="200.0">
                      <children>
                         <Label alignment="TOP_CENTER" layoutX="10.0" layoutY="8.0" prefHeight="25.0" prefWidth="84.0" text="CloudNote" textAlignment="CENTER">
@@ -41,7 +41,7 @@
             </GridPane>
          </children>
       </Pane>
-      <Pane fx:id="PSighUp" prefHeight="400.0" prefWidth="600.0" visible="false">
+      <Pane fx:id="PSignUp" prefHeight="400.0" prefWidth="600.0" visible="false">
          <children>
             <GridPane layoutX="234.0" layoutY="117.0" prefHeight="200.0" prefWidth="133.0">
               <columnConstraints>
@@ -66,31 +66,31 @@
                      <children>
                         <Pane prefHeight="200.0" prefWidth="200.0">
                            <children>
-                              <Button fx:id="BtSighUpOk" layoutX="-1.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSighUpOk" prefHeight="25.0" prefWidth="60.0" text="ок" />
+                              <Button fx:id="BtSignUpOk" layoutX="-1.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSignUpOk" prefHeight="25.0" prefWidth="60.0" text="ок" />
                            </children>
                         </Pane>
                         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
                            <children>
-                              <Button fx:id="BtSighUpCancel" layoutX="8.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSighUpCancel" prefHeight="25.0" prefWidth="60.0" text="отмена" />
+                              <Button fx:id="BtSignUpCancel" layoutX="8.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSignUpCancel" prefHeight="25.0" prefWidth="60.0" text="отмена" />
                            </children>
                         </Pane>
                      </children>
                   </GridPane>
                   <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                      <children>
-                        <TextField fx:id="TfSighUpUsername" layoutX="-8.0" layoutY="29.0" promptText="username" />
+                        <TextField fx:id="TfSignUpUsername" layoutX="-8.0" layoutY="29.0" promptText="username" />
                         <Label fx:id="LUsernameStatus" layoutX="33.0" layoutY="6.0" prefHeight="17.0" prefWidth="68.0" text="имя занято" textFill="#fc0000" visible="false" />
                      </children>
                   </Pane>
                   <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
                      <children>
-                        <TextField fx:id="TfSighUpLogin" layoutX="-8.0" layoutY="30.0" promptText="логин" />
+                        <TextField fx:id="TfSignUpLogin" layoutX="-8.0" layoutY="30.0" promptText="логин" />
                         <Label fx:id="LLoginStatus" layoutY="6.0" prefHeight="17.0" prefWidth="133.0" text="Label" textFill="RED" visible="false" />
                      </children>
                   </Pane>
                   <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
                      <children>
-                        <PasswordField fx:id="TfSighUpPass" layoutX="-8.0" layoutY="27.0" promptText="пароль" />
+                        <PasswordField fx:id="TfSignUpPass" layoutX="-8.0" layoutY="27.0" promptText="пароль" />
                         <Label fx:id="LPasswordStatus" layoutY="6.0" prefHeight="17.0" prefWidth="133.0" text="Label" textFill="RED" visible="false" />
                      </children>
                   </Pane>
@@ -99,7 +99,7 @@
             <Label layoutX="266.0" layoutY="70.0" text="Регистрация" />
          </children>
       </Pane>
-      <Pane fx:id="PSighIn" layoutY="-1.0" prefHeight="400.0" prefWidth="600.0" visible="false">
+      <Pane fx:id="PSignIn" layoutY="-1.0" prefHeight="400.0" prefWidth="600.0" visible="false">
          <children>
             <Label layoutX="288.0" layoutY="80.0" text="Вход" />
             <GridPane layoutX="234.0" layoutY="139.0" prefHeight="200.0" prefWidth="133.0">
@@ -113,8 +113,8 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <TextField fx:id="TfSighInLogin" promptText="логин" GridPane.rowIndex="1" />
-                  <PasswordField fx:id="TfSighInPass" promptText="пароль" GridPane.rowIndex="2" />
+                  <TextField fx:id="TfSignInLogin" promptText="логин" GridPane.rowIndex="1" />
+                  <PasswordField fx:id="TfSignInPass" promptText="пароль" GridPane.rowIndex="2" />
                   <GridPane GridPane.rowIndex="3">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -126,12 +126,12 @@
                      <children>
                         <Pane prefHeight="200.0" prefWidth="200.0">
                            <children>
-                              <Button fx:id="BtSighInOk" layoutX="-1.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSighInOk" prefHeight="25.0" prefWidth="60.0" text="ок" />
+                              <Button fx:id="BtSignInOk" layoutX="-1.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSignInOk" prefHeight="25.0" prefWidth="60.0" text="ок" />
                            </children>
                         </Pane>
                         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
                            <children>
-                              <Button fx:id="BtSighInCancel" layoutX="8.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSighInCancel" prefHeight="25.0" prefWidth="60.0" text="отмена" />
+                              <Button fx:id="BtSignInCancel" layoutX="8.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleClickSignInCancel" prefHeight="25.0" prefWidth="60.0" text="отмена" />
                            </children>
                         </Pane>
                      </children>
