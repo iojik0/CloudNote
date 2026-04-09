@@ -6,17 +6,12 @@ import com.cloudnote.utils.PasswordHasher;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
-import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.ResourceBundle;
 
 public class StartController {
     DatabaseConnection conn = new DatabaseConnection();
@@ -31,28 +26,28 @@ public class StartController {
     // Панели (Pane)
     @FXML private Pane PMain;
     @FXML private Pane PFirst;
-    @FXML private Pane PSighUp;
-    @FXML private Pane PSighIn;
+    @FXML private Pane PSignUp;
+    @FXML private Pane PSignIn;
 
     // Кнопки на главном экране
-    @FXML private Button BtSighIn;
-    @FXML private Button BtSighUp;
+    @FXML private Button BtSignIn;
+    @FXML private Button BtSignUp;
 
     // Поля для регистрации
-    @FXML private TextField TfSighUpUsername;
-    @FXML private TextField TfSighUpLogin;
-    @FXML private TextField TfSighUpPass;
-    @FXML private Button BtSighUpOk;
-    @FXML private Button BtSighUpCancel;
+    @FXML private TextField TfSignUpUsername;
+    @FXML private TextField TfSignUpLogin;
+    @FXML private TextField TfSignUpPass;
+    @FXML private Button BtSignUpOk;
+    @FXML private Button BtSignUpCancel;
     @FXML private Label LUsernameStatus;
     @FXML private Label LLoginStatus;
     @FXML private Label LPasswordStatus;
     // Поля для входа
     @FXML private Label LError;
-    @FXML private TextField TfSighInLogin;
-    @FXML private TextField TfSighInPass;
-    @FXML private Button BtSighInOk;
-    @FXML private Button BtSighInCancel;
+    @FXML private TextField TfSignInLogin;
+    @FXML private TextField TfSignInPass;
+    @FXML private Button BtSignInOk;
+    @FXML private Button BtSignInCancel;
 
 
     public void initialize() {
@@ -61,17 +56,17 @@ public class StartController {
 
     // Методы-обработчики событий
     @FXML
-    private void handleClickSighIn() {
+    private void handleClickSignIn() {
         PFirst.setVisible(false);
-        PSighIn.setVisible(true);
-        PSighUp.setVisible(false);
+        PSignIn.setVisible(true);
+        PSignUp.setVisible(false);
     }
 
     @FXML
-    private void handleClickSighUp() {
+    private void handleClickSignUp() {
         PFirst.setVisible(false);
-        PSighIn.setVisible(false);
-        PSighUp.setVisible(true);
+        PSignIn.setVisible(false);
+        PSignUp.setVisible(true);
 
     }
 
@@ -80,9 +75,9 @@ public class StartController {
 
     // обработка кнопки для входа
     @FXML
-    private void handleClickSighInOk() {
-        String login = TfSighInLogin.getText().trim();
-        String pass = TfSighInPass.getText().trim();
+    private void handleClickSignInOk() {
+        String login = TfSignInLogin.getText().trim();
+        String pass = TfSignInPass.getText().trim();
 
         // проверяем на пустоту ввода
         if(login.isEmpty() || pass.isEmpty()) {
@@ -102,19 +97,19 @@ public class StartController {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()){
                     String username = rs.getString("username");
-                    TfSighInLogin.clear();
-                    TfSighInPass.clear();
+                    TfSignInLogin.clear();
+                    TfSignInPass.clear();
                     // переход в новое окно
                     PFirst.setVisible(true);
-                    PSighIn.setVisible(false);
-                    PSighUp.setVisible(false);
+                    PSignIn.setVisible(false);
+                    PSignUp.setVisible(false);
                     LError.setVisible(false);
                 }
                 else{
                     LError.setText("неправильный логин или пароль");
                     LError.setVisible(true);
-                    TfSighInLogin.clear();
-                    TfSighInPass.clear();
+                    TfSignInLogin.clear();
+                    TfSignInPass.clear();
                 }
             }
         } catch (SQLException e) {
@@ -123,15 +118,15 @@ public class StartController {
     }
 
     @FXML
-    private void handleClickSighInCancel() {
+    private void handleClickSignInCancel() {
         PFirst.setVisible(true);
-        PSighIn.setVisible(false);
-        PSighUp.setVisible(false);
+        PSignIn.setVisible(false);
+        PSignUp.setVisible(false);
     }
 
     private void valueChecking() {
         //проверка юзернейма
-        TfSighUpUsername.textProperty().addListener((observable, oldValue, newValue) -> {
+        TfSignUpUsername.textProperty().addListener((observable, oldValue, newValue) -> {
             String username = newValue.trim();
 
             if (username.length() < 4) {
@@ -165,7 +160,7 @@ public class StartController {
         });
 
         // проверка логина
-        TfSighUpLogin.textProperty().addListener((observable, oldValue, newValue) -> {
+        TfSignUpLogin.textProperty().addListener((observable, oldValue, newValue) -> {
             String login = newValue.trim();
 
             if (login.length() < 5) {
@@ -199,8 +194,8 @@ public class StartController {
         });
 
         // проверка пароля
-        TfSighUpPass.textProperty().addListener((observable, oldValue, newValue) -> {
-            String pass = TfSighUpPass.getText().trim();
+        TfSignUpPass.textProperty().addListener((observable, oldValue, newValue) -> {
+            String pass = TfSignUpPass.getText().trim();
             if (newValue.length() < 5) {
                 LPasswordStatus.setText("пароль должен состоять минимум из 5 символов");
                 LPasswordStatus.setVisible(true);
@@ -215,20 +210,20 @@ public class StartController {
 
 
     @FXML
-    private void handleClickSighUpOk() {
+    private void handleClickSignUpOk() {
         if(isPasswordValid && isUsernameValid && isLoginValid){
             String sql = "INSERT INTO users (username, login, password) VALUES (?, ?, ?)";
             try (Connection con = conn.getCon();
                  PreparedStatement ps = con.prepareStatement(sql)) {
 
-                ps.setString(1, TfSighUpUsername.getText());
-                ps.setString(2, TfSighUpLogin.getText());
-                ps.setString(3, PasswordHasher.hashPassword(TfSighUpPass.getText()));
+                ps.setString(1, TfSignUpUsername.getText());
+                ps.setString(2, TfSignUpLogin.getText());
+                ps.setString(3, PasswordHasher.hashPassword(TfSignUpPass.getText()));
 
                 int rowsAdd = ps.executeUpdate();
                 if(rowsAdd > 0){
                     System.out.println("Регистрация прошла успешно");
-                    handleClickSighUpCancel(); // очистить поля после регистрации
+                    handleClickSignUpCancel(); // очистить поля после регистрации
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -237,13 +232,13 @@ public class StartController {
     }
 
     @FXML
-    private void handleClickSighUpCancel() {
+    private void handleClickSignUpCancel() {
         PFirst.setVisible(true);
-        PSighIn.setVisible(false);
-        PSighUp.setVisible(false);
-        TfSighUpUsername.clear();
-        TfSighUpLogin.clear();
-        TfSighUpPass.clear();
-        PSighUp.setVisible(false);
+        PSignIn.setVisible(false);
+        PSignUp.setVisible(false);
+        TfSignUpUsername.clear();
+        TfSignUpLogin.clear();
+        TfSignUpPass.clear();
+        PSignUp.setVisible(false);
     }
 }
