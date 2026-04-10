@@ -15,7 +15,7 @@ public class MainApp extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/fxml/StartView.fxml"));
         BorderPane root = fxmlLoader.load();
-        Scene scene = new Scene(root, 1300, 750);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
                 "/icons/CloudNote-256.png")));
