@@ -264,3 +264,131 @@
     -fx-padding: 0 0 0 0;
     -fx-letter-spacing: 1px;
 }
+
+.auth-container {
+    -fx-background-color: #0D1117;
+}
+
+.auth-pane {
+    -fx-background-color: #0D1117;
+}
+
+.auth-content {
+    -fx-background-color: #0D1117;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+.logo-container {
+    -fx-opacity: 1;
+}
+
+.auth-pane .app-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00E5FF;
+}
+
+.auth-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C9D1D9;
+}
+
+.auth-form {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #21262D;
+    -fx-border-width: 1;
+    -fx-padding: 25 35;
+    -fx-min-width: 300;
+    -fx-max-width: 350;
+    -fx-pref-width: 320;
+}
+
+.auth-field {
+    -fx-background-color: #0D1117;
+    -fx-text-fill: #C9D1D9;
+    -fx-prompt-text-fill: #8B949E;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #21262D;
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+    -fx-min-width: 220;
+    -fx-max-width: 280;
+    -fx-pref-width: 250;
+}
+
+.auth-field:focused {
+    -fx-border-color: #00E5FF;
+    -fx-border-width: 1;
+}
+
+.error-label {
+    -fx-font-size: 11px;
+    -fx-padding: 4 0 0 8;
+}
+
+.button-container {
+    -fx-padding: 0;
+}
+
+.auth-pane .primary-button {
+    -fx-pref-width: 200;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+}
+
+.auth-pane .secondary-button {
+    -fx-pref-width: 200;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+}
+
+.auth-pane .cloud-icon {
+    -fx-opacity: 0.5;
+}
+
+.auth-pane .cloud-dot {
+    -fx-fill: #00E5FF;
+    -fx-opacity: 0.6;
+}
+
+.content-pane {
+    -fx-background-color: #0D1117;
+}
+
+.root-pane {
+    -fx-background-color: #0D1117;
+}
+
+.app-title-auth {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00E5FF;
+}
+
+.auth-form .primary-button,
+.auth-form .secondary-button {
+    -fx-padding: 8 24;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-min-width: 90;
+}
+
+.auth-form .primary-button {
+    -fx-background-color: #00E5FF;
+    -fx-text-fill: #0D1117;
+}
+
+.auth-form .secondary-button {
+    -fx-background-color: #21262D;
+    -fx-text-fill: #C9D1D9;
+}
+
+.auth-form .secondary-button:hover {
+    -fx-background-color: #30363D;
+    -fx-text-fill: #FFFFFF;
+}

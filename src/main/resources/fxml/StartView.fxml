@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="PMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" styleClass="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.StartController">
+
+    <center>
+        <StackPane styleClass="auth-container">
+            <StackPane fx:id="PFirst" styleClass="auth-pane" visible="true">
+                <VBox alignment="CENTER" spacing="30" styleClass="auth-content">
+                    <Label text="CloudNote" styleClass="app-title-auth"/>
+
+                    <VBox spacing="12" alignment="CENTER" styleClass="button-container">
+                        <Button fx:id="BtsignIn" text="Вход" styleClass="primary-button" onAction="#handleClickSignIn"/>
+                        <Button fx:id="BtSignUp" text="Регистрация" styleClass="secondary-button" onAction="#handleClickSignUp"/>
+                    </VBox>
+                </VBox>
+            </StackPane>
+
+            <StackPane fx:id="PSignUp" styleClass="auth-pane" visible="false">
+                <VBox alignment="CENTER" spacing="20" styleClass="auth-content">
+                    <Label text="Регистрация" styleClass="auth-title"/>
+
+                    <VBox spacing="16" alignment="CENTER" styleClass="auth-form">
+                        <VBox spacing="4" alignment="CENTER">
+                            <TextField fx:id="TfSignUpUsername" promptText="Имя пользователя" styleClass="auth-field"/>
+                            <Label fx:id="LUsernameStatus" text="имя занято" styleClass="error-label" visible="false"/>
+                        </VBox>
+
+                        <VBox spacing="4" alignment="CENTER">
+                            <TextField fx:id="TfSignUpLogin" promptText="Логин" styleClass="auth-field"/>
+                            <Label fx:id="LLoginStatus" text="Label" styleClass="error-label" visible="false"/>
+                        </VBox>
+
+                        <VBox spacing="4" alignment="CENTER">
+                            <PasswordField fx:id="TfSignUpPass" promptText="Пароль" styleClass="auth-field"/>
+                            <Label fx:id="LPasswordStatus" text="Label" styleClass="error-label" visible="false"/>
+                        </VBox>
+
+                        <HBox spacing="12" alignment="CENTER">
+                            <Button fx:id="BtSignUpOk" text="Ок" styleClass="primary-button" onAction="#handleClickSignUpOk"/>
+                            <Button fx:id="BtSignUpCancel" text="Отмена" styleClass="secondary-button" onAction="#handleClickSignUpCancel"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </StackPane>
+
+            <StackPane fx:id="PSignIn" styleClass="auth-pane" visible="false">
+                <VBox alignment="CENTER" spacing="20" styleClass="auth-content">
+                    <Label text="Вход" styleClass="auth-title"/>
+
+                    <VBox spacing="16" alignment="CENTER" styleClass="auth-form">
+                        <TextField fx:id="TfSignInLogin" promptText="Логин" styleClass="auth-field"/>
+
+                        <PasswordField fx:id="TfSignInPass" promptText="Пароль" styleClass="auth-field"/>
+
+                        <Label fx:id="LError" text="заполните все поля" styleClass="error-label" visible="false"/>
+
+                        <HBox spacing="12" alignment="CENTER">
+                            <Button fx:id="BtSignInOk" text="Ок" styleClass="primary-button" onAction="#handleClickSignInOk"/>
+                            <Button fx:id="BtSignInCancel" text="Отмена" styleClass="secondary-button" onAction="#handleClickSignInCancel"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </StackPane>
+
+            <BorderPane fx:id="BpContent" visible="false" styleClass="content-pane"/>
+        </StackPane>
+    </center>
+
+</BorderPane>
