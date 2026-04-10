@@ -94,6 +94,7 @@ public class StartController {
         // записываем пароль в виде хэша
         String sql = "SELECT * FROM users WHERE login = ? AND password = ?";
         String hashPass = PasswordHasher.hashPassword(pass);
+
         try (Connection con = conn.getCon();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -102,14 +103,14 @@ public class StartController {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()){
-                    String username = rs.getString("username");
+                    String loginUser = rs.getString("login");
                     TfSignInLogin.clear();
                     TfSignInPass.clear();
                     // переход в новое окно
                     PSignIn.setVisible(false);
                     PSignUp.setVisible(false);
                     LError.setVisible(false);
-                    getContent();
+                    getContent(loginUser);
                     BpContent.setVisible(true);
 
                 }
@@ -221,6 +222,7 @@ public class StartController {
     private void handleClickSignUpOk() {
         if(isPasswordValid && isUsernameValid && isLoginValid){
             String sql = "INSERT INTO users (username, login, password) VALUES (?, ?, ?)";
+            String login = TfSignUpLogin.getText().trim();
             try (Connection con = conn.getCon();
                  PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -233,7 +235,7 @@ public class StartController {
                     System.out.println("Регистрация прошла успешно");
                     handleClickSignUpCancel(); // очистить поля после регистрации
                     //переход в основное окно
-                    getContent();
+                    getContent(login);
                     BpContent.setVisible(true);
                 }
             } catch (SQLException e) {
@@ -253,14 +255,15 @@ public class StartController {
         PSignUp.setVisible(false);
     }
 
-    public void getContent(){
+    public void getContent(String login){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
             BorderPane loadedPane = loader.load(); // Загружаем как AnchorPane
 
             ContentViewController contentController = loader.getController();
             contentController.setParentContainer(BpContent);
-
+            int id = getUserId(login);
+            contentController.setIdUser(id);
             loadedPane.prefWidthProperty().bind(BpContent.widthProperty());
             loadedPane.prefHeightProperty().bind(BpContent.heightProperty());
             BpContent.setCenter(loadedPane);
@@ -270,4 +273,22 @@ public class StartController {
         }
     }
 
+
+    // передаем айди юзера в другой контроллер
+    public int getUserId(String login) {
+        String sql = "SELECT id FROM users WHERE login = ?";
+
+        try (Connection con = conn.getCon();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, login);
+            try(ResultSet rs = ps.executeQuery()){
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return -1;
+    }
 }
