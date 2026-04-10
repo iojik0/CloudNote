@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.ContentViewController">
+
+    <top>
+        <VBox spacing="16" styleClass="top-panel">
+            <padding>
+                <Insets top="24" right="32" bottom="24" left="32"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <HBox alignment="CENTER" styleClass="cloud-icon">
+                    <Circle radius="6" fill="#00E5FF" opacity="0.4"/>
+                    <Circle radius="8" fill="#00E5FF" opacity="0.6"/>
+                    <Circle radius="10" fill="#00E5FF" opacity="0.8"/>
+                    <Circle radius="8" fill="#00E5FF" opacity="0.6"/>
+                    <Circle radius="6" fill="#00E5FF" opacity="0.4"/>
+                </HBox>
+                <Label text="CloudNote" styleClass="app-title"/>
+            </HBox>
+
+            <TextField fx:id="searchField" promptText="Поиск" styleClass="search-field"/>
+        </VBox>
+    </top>
+
+    <left>
+        <VBox spacing="4" minWidth="200" styleClass="left-menu">
+            <padding>
+                <Insets top="32" right="16" bottom="32" left="20"/>
+            </padding>
+
+            <Button text="Избранное" styleClass="menu-button" onAction="#handleFavorite"/>
+            <Button text="Новая заметка" styleClass="menu-button" onAction="#handleNewNote"/>
+            <Button text="Удалить заметку" styleClass="menu-button" onAction="#handleDeleteNote"/>
+            <Button text="Настройки" styleClass="menu-button" onAction="#handleSettings"/>
+        </VBox>
+    </left>
+
+    <center>
+        <SplitPane styleClass="center-split">
+            <items>
+                <VBox spacing="12" styleClass="list-panel">
+                    <padding>
+                        <Insets top="24" right="20" bottom="24" left="20"/>
+                    </padding>
+
+                    <Label text="Заметки" styleClass="panel-title"/>
+
+                    <ListView fx:id="listView" styleClass="notes-list" VBox.vgrow="ALWAYS"/>
+
+                    <Label fx:id="statsLabel" styleClass="stats-label"/>
+                </VBox>
+
+                <VBox spacing="16" styleClass="editor-panel">
+                    <padding>
+                        <Insets top="24" right="24" bottom="24" left="24"/>
+                    </padding>
+
+                    <Label text="Редактор" styleClass="panel-title"/>
+
+                    <TextField fx:id="titleField" promptText="Заголовок" styleClass="title-field"/>
+
+                    <TextArea fx:id="noteContentArea" promptText="Текст заметки..."
+                              wrapText="true" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT">
+                        <Button text="Очистить" styleClass="secondary-button" onAction="#handleClear"/>
+                        <Button text="Сохранить" styleClass="primary-button" onAction="#handleSave"/>
+                    </HBox>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>
