@@ -7,7 +7,11 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     public Connection getCon() throws SQLException {
         Connection conn;
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/dbcloudnote?useSSL=false&serverTimezone=UTC", "root", "1234");
+        conn = DriverManager.getConnection(
+                "jdbc:postgresql://localhost:5432/cloudnote",
+                "postgres",     // стандартный пользователь PostgreSQL
+                "1234"          // ваш пароль
+        );
         return conn;
     }
 }
