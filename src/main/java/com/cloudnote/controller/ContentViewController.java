@@ -23,7 +23,7 @@ public class ContentViewController {
     private FilteredList<Note> filteredNotes;
     private Note currentNote;
     private BorderPane parentContainer;
-
+    private int idUser;
     public void setParentContainer(BorderPane container) {
         this.parentContainer = container;
         if (parentContainer != null) {
@@ -184,4 +184,16 @@ public class ContentViewController {
                 new Note("Рецепты", "☕ Идеальный кофе:\n1. Свежемолотые зёрна\n2. Вода 90-96°C\n3. Наслаждение\n\n🍰 Чизкейк:\n• Сливочный сыр\n• Печенье\n• Любовь к готовке", false)
         );
     }
+
+    // загружаем заметки пользователя
+    private void loadNotes(){}
+
+    //получем айди пользователя из стартового окна
+    public void setIdUser(int idUser){
+        this.idUser = idUser;
+        System.out.println("id user = "+idUser);
+    }
+
+
+
 }
