@@ -13,7 +13,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <?import javafx.scene.layout.Region?>
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.ContentViewController">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.ContentViewController">
 
     <top>
         <VBox spacing="16" styleClass="top-panel">
