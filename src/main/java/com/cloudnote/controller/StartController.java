@@ -253,7 +253,7 @@ public class StartController {
     }
     public void getContent(){
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudnote/view/ContentView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
             AnchorPane loadedPane = loader.load(); // Загружаем как AnchorPane
 
             // 2. Очищаем старый контент (опционально)
