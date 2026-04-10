@@ -79,7 +79,6 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-text-fill: #8B949E;
-    -fx-uppercase: true;
 }
 
 .notes-list {
@@ -248,4 +247,20 @@
 
 .dialog-pane .button:hover {
     -fx-background-color: #30363D;
+}
+
+.menu-header {
+    -fx-text-fill: #00E5FF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 12;
+    -fx-letter-spacing: 1px;
+}
+
+.panel-header {
+    -fx-text-fill: #00E5FF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 0;
+    -fx-letter-spacing: 1px;
 }
