@@ -257,6 +257,9 @@ public class StartController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
             BorderPane loadedPane = loader.load(); // Загружаем как AnchorPane
 
+            ContentViewController contentController = loader.getController();
+            contentController.setParentContainer(BpContent);
+
             loadedPane.prefWidthProperty().bind(BpContent.widthProperty());
             loadedPane.prefHeightProperty().bind(BpContent.heightProperty());
             BpContent.setCenter(loadedPane);

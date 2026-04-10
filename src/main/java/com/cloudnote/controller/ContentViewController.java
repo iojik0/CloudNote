@@ -7,6 +7,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.BorderPane;
 
 public class ContentViewController {
 
@@ -15,10 +16,21 @@ public class ContentViewController {
     @FXML private Label statsLabel;
     @FXML private TextField titleField;
     @FXML private TextArea noteContentArea;
+    @FXML
+    private BorderPane rootPane;
 
     private ObservableList<Note> notesList = FXCollections.observableArrayList();
     private FilteredList<Note> filteredNotes;
     private Note currentNote;
+    private BorderPane parentContainer;
+
+    public void setParentContainer(BorderPane container) {
+        this.parentContainer = container;
+        if (parentContainer != null) {
+            rootPane.prefWidthProperty().bind(parentContainer.widthProperty());
+            rootPane.prefHeightProperty().bind(parentContainer.heightProperty());
+        }
+    }
 
     @FXML
     public void initialize() {
