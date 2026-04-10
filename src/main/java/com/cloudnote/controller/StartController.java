@@ -257,6 +257,10 @@ public class StartController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
             BorderPane loadedPane = loader.load(); // Загружаем как AnchorPane
 
+            loadedPane.prefWidthProperty().bind(BpContent.widthProperty());
+            loadedPane.prefHeightProperty().bind(BpContent.heightProperty());
+            BpContent.setCenter(loadedPane);
+
             // 2. Очищаем старый контент (опционально)
             BpContent.getChildren().clear();
 
