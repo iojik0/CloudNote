@@ -265,12 +265,6 @@ public class StartController {
             loadedPane.prefHeightProperty().bind(BpContent.heightProperty());
             BpContent.setCenter(loadedPane);
 
-            // 2. Очищаем старый контент (опционально)
-            BpContent.getChildren().clear();
-
-            // 3. Добавляем загруженный Pane в текущий
-            BpContent.getChildren().add(loadedPane);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
