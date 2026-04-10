@@ -9,8 +9,8 @@ public class DatabaseConnection {
         Connection conn;
         conn = DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5432/cloudnote",
-                "postgres",     // стандартный пользователь PostgreSQL
-                "1234"          // ваш пароль
+                "postgres",
+                "1234"
         );
         return conn;
     }
