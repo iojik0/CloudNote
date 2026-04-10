@@ -57,6 +57,7 @@ public class StartController {
 
     public void initialize() {
         valueChecking();
+        PMain.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     }
 
     // Методы-обработчики событий
