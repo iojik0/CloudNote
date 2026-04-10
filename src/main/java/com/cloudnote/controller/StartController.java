@@ -252,6 +252,7 @@ public class StartController {
         TfSignUpPass.clear();
         PSignUp.setVisible(false);
     }
+
     public void getContent(){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
