@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
+<?import javafx.scene.layout.Region?>
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.ContentViewController">
 
     <top>
@@ -38,8 +39,11 @@
     <left>
         <VBox spacing="4" minWidth="200" styleClass="left-menu">
             <padding>
-                <Insets top="32" right="16" bottom="32" left="20"/>
+                <Insets top="24" right="16" bottom="32" left="20"/>
             </padding>
+
+            <Label text="МЕНЮ" styleClass="menu-header"/>
+            <Region prefHeight="4"/>
 
             <Button text="Избранное" styleClass="menu-button" onAction="#handleFavorite"/>
             <Button text="Новая заметка" styleClass="menu-button" onAction="#handleNewNote"/>
@@ -51,29 +55,36 @@
     <center>
         <SplitPane styleClass="center-split">
             <items>
-                <VBox spacing="12" styleClass="list-panel">
+                <VBox styleClass="list-panel" minWidth="200" prefWidth="280" maxWidth="400">
                     <padding>
                         <Insets top="24" right="20" bottom="24" left="20"/>
                     </padding>
 
-                    <Label text="Заметки" styleClass="panel-title"/>
+                    <Label text="ЗАМЕТКИ" styleClass="panel-header"/>
+                    <Region prefHeight="4"/>
 
                     <ListView fx:id="listView" styleClass="notes-list" VBox.vgrow="ALWAYS"/>
 
                     <Label fx:id="statsLabel" styleClass="stats-label"/>
                 </VBox>
 
-                <VBox spacing="16" styleClass="editor-panel">
+                <VBox styleClass="editor-panel" minWidth="400">
                     <padding>
                         <Insets top="24" right="24" bottom="24" left="24"/>
                     </padding>
 
-                    <Label text="Редактор" styleClass="panel-title"/>
+                    <Label text="РЕДАКТОР" styleClass="panel-header"/>
+                    <Region prefHeight="4"/>
 
                     <TextField fx:id="titleField" promptText="Заголовок" styleClass="title-field"/>
 
-                    <TextArea fx:id="noteContentArea" promptText="Текст заметки..."
-                              wrapText="true" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+                    <VBox VBox.vgrow="ALWAYS" spacing="0">
+                        <padding>
+                            <Insets top="12" right="0" bottom="12" left="0"/>
+                        </padding>
+                        <TextArea fx:id="noteContentArea" promptText="Текст заметки..."
+                                  wrapText="true" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+                    </VBox>
 
                     <HBox spacing="12" alignment="CENTER_RIGHT">
                         <Button text="Очистить" styleClass="secondary-button" onAction="#handleClear"/>
