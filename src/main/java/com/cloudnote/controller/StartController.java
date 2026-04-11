@@ -60,7 +60,10 @@ public class StartController {
         PMain.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     }
 
-    // Методы-обработчики событий
+    /**
+     * Переключает интерфейс на панель авторизации.
+     * Скрывает начальную панель и панель регистрации, отображает форму входа.
+     */
     @FXML
     private void handleClickSignIn() {
         PFirst.setVisible(false);
@@ -68,6 +71,10 @@ public class StartController {
         PSignUp.setVisible(false);
     }
 
+    /**
+     * Переключает интерфейс на панель регистрации нового пользователя.
+     * Скрывает начальную панель и панель входа, отображает форму регистрации.
+     */
     @FXML
     private void handleClickSignUp() {
         PFirst.setVisible(false);
@@ -76,10 +83,12 @@ public class StartController {
 
     }
 
-
-
-
-    // обработка кнопки для входа
+    /**
+     * Обрабатывает попытку входа пользователя в систему.
+     * Проверяет заполненность полей, сверяет логин и хэш пароля с данными в БД.
+     * При успешной авторизации очищает форму, скрывает панель входа и загружает основное окно приложения.
+     * При ошибке отображает соответствующее сообщение и очищает поля ввода.
+     */
     @FXML
     private void handleClickSignInOk() {
         String login = TfSignInLogin.getText().trim();
@@ -126,6 +135,9 @@ public class StartController {
         }
     }
 
+    /**
+     * Отменяет процесс авторизации и возвращает пользователя к начальному экрану.
+     */
     @FXML
     private void handleClickSignInCancel() {
         PFirst.setVisible(true);
@@ -133,6 +145,14 @@ public class StartController {
         PSignUp.setVisible(false);
     }
 
+    /**
+     * Настраивает валидацию полей регистрационной формы в реальном времени.
+     * Проверяет:
+     * - Имя пользователя: минимальная длина 4 символа, уникальность в БД
+     * - Логин: минимальная длина 5 символов, уникальность в БД
+     * - Пароль: минимальная длина 5 символов
+     * При ошибках отображает соответствующие сообщения и обновляет флаги валидности.
+     */
     private void valueChecking() {
         //проверка юзернейма
         TfSignUpUsername.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -216,8 +236,12 @@ public class StartController {
         });
     }
 
-
-
+    /**
+     * Обрабатывает подтверждение регистрации нового пользователя.
+     * Проверяет валидность введенных данных (пароль, имя пользователя, логин).
+     * При успешной проверке добавляет пользователя в базу данных,
+     * очищает форму и переходит к основному окну приложения.
+     */
     @FXML
     private void handleClickSignUpOk() {
         if(isPasswordValid && isUsernameValid && isLoginValid){
@@ -244,6 +268,10 @@ public class StartController {
         }
     }
 
+    /**
+     * Отменяет процесс регистрации и возвращает пользователя к начальному экрану.
+     * Очищает все поля ввода и скрывает панель регистрации.
+     */
     @FXML
     private void handleClickSignUpCancel() {
         PFirst.setVisible(true);
@@ -255,6 +283,11 @@ public class StartController {
         PSignUp.setVisible(false);
     }
 
+    /**
+     * Загружает и отображает основное содержимое приложения (окно с заметками).
+     * Создает контроллер для ContentView, передает ему идентификатор пользователя
+     * и привязывает размеры загруженного контента к родительскому контейнеру.
+     */
     public void getContent(String login){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ContentView.fxml"));
@@ -272,7 +305,6 @@ public class StartController {
             e.printStackTrace();
         }
     }
-
 
     // передаем айди юзера в другой контроллер
     public int getUserId(String login) {

@@ -87,6 +87,7 @@
                     </VBox>
 
                     <HBox spacing="12" alignment="CENTER_RIGHT">
+                        <Button fx:id="favoriteButton" text="☆" styleClass="favorite-button" onAction="#handleToggleFavorite"/>
                         <Button text="Очистить" styleClass="secondary-button" onAction="#handleClear"/>
                     </HBox>
                 </VBox>
