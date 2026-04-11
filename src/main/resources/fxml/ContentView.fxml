@@ -88,7 +88,6 @@
 
                     <HBox spacing="12" alignment="CENTER_RIGHT">
                         <Button text="Очистить" styleClass="secondary-button" onAction="#handleClear"/>
-                        <Button text="Сохранить" styleClass="primary-button" onAction="#handleSave"/>
                     </HBox>
                 </VBox>
             </items>

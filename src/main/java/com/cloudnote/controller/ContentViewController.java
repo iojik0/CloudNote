@@ -137,10 +137,6 @@ public class ContentViewController {
             listView.getSelectionModel().clearSelection();
         }
     }
-    @FXML
-    private void handleSave() {
-
-    }
 
     private void filterNotes() {
         String filter = searchField.getText().toLowerCase();
