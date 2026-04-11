@@ -25,7 +25,7 @@ public class ContentViewController {
     @FXML private TextField titleField;
     @FXML private TextArea noteContentArea;
     @FXML private BorderPane rootPane;
-
+    @FXML private Button favoriteButton;
 
     DatabaseConnection conn = new DatabaseConnection();
 
@@ -37,6 +37,10 @@ public class ContentViewController {
     private BorderPane parentContainer;
     private int idUser;
 
+    /**
+     * Привязывает размеры корневого элемента к размерам родительского контейнера.
+     * Используется для адаптации содержимого при изменении размеров окна.
+     */
     public void setParentContainer(BorderPane container) {
         this.parentContainer = container;
         if (parentContainer != null) {
@@ -47,6 +51,7 @@ public class ContentViewController {
 
     @FXML
     public void initialize() {
+        resetFavoriteButton();
         getInit();
         filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
         listView.setItems(filteredNotes);
@@ -75,6 +80,7 @@ public class ContentViewController {
                 currentNote = newVal;
                 titleField.setText(newVal.getTitle());
                 noteContentArea.setText(newVal.getText());
+                updateFavoriteButton(newVal);
             }
         });
 
@@ -84,29 +90,73 @@ public class ContentViewController {
         ListNotesFromUser.addListener((javafx.collections.ListChangeListener.Change<? extends NoteModel> c) -> updateStats());
     }
 
+    /**
+     * Обработчик кнопки "Избранное" в меню.
+     */
     @FXML
-    private void handleFavorite() {
+    private void handleFavorite() { }
+
+    /**
+     * Обрабатывает нажатие кнопки избранного (звездочки).
+     * Переключает статус текущей выбранной заметки: добавляет её в избранное или удаляет из него.
+     * После изменения обновляет внешний вид кнопки, отображает всплывающее уведомление
+     * и пересчитывает статистику.
+     * Если заметка не выбрана, показывает предупреждение.
+     */
+    @FXML
+    private void handleToggleFavorite() {
         NoteModel selected = listView.getSelectionModel().getSelectedItem();
         if (selected != null) {
             selected.setPin(!selected.isPin());
             listView.refresh();
+
+            updateFavoriteButton(selected);
+
             String status = selected.isPin() ? "добавлена в" : "удалена из";
-            showAlert("Избранное", "Заметка " + status + " избранного!");
+            showAlert("Избранное", "Заметка " + status + " ★!");
             updateStats();
         } else {
             showAlert("Внимание", "Выберите заметку!");
         }
     }
 
+    /**
+     * Обновляет состояние кнопки избранного в зависимости от статуса заметки.
+     */
+    private void updateFavoriteButton(NoteModel note) {
+        if (note != null && note.isPin()) {
+            favoriteButton.setText("★");
+            favoriteButton.getStyleClass().add("favorite");
+        } else {
+            favoriteButton.setText("☆");
+            favoriteButton.getStyleClass().remove("favorite");
+        }
+    }
+
+    /**
+     * Сбрасывает состояние кнопки избранного до начального.
+     */
+    private void resetFavoriteButton() {
+        favoriteButton.setText("☆");
+        favoriteButton.getStyleClass().remove("favorite");
+    }
+
+    /**
+     * Обрабатывает нажатие кнопки "Новая заметка" в меню.
+     */
     @FXML
     private void handleNewNote() {
         currentNote = null;
         titleField.clear();
         noteContentArea.clear();
         listView.getSelectionModel().clearSelection();
+        resetFavoriteButton();
     }
 
     // БУДУЩЕМУ МНЕ - ДОДЕЛАТЬ (ЗАХХУЯРИТЬ СЮДА ЗАПРОС НА УДАЛЕНИЕ ЗАМЕТКИ)
+    /**
+     * Обрабатывает нажатие кнопки "Удалить заметку" в меню.
+     */
     @FXML
     private void handleDeleteNote() {
         NoteModel selected = listView.getSelectionModel().getSelectedItem();
@@ -120,11 +170,19 @@ public class ContentViewController {
         }
     }
 
+    /**
+     * Обрабатывает нажатие кнопки "Настройки" в меню.
+     */
     @FXML
     private void handleSettings() {
         showAlert("Настройки", "Тема: Тёмная\nСтиль: CloudNote\nВерсия: 1.0");
     }
 
+    /**
+     * Отменяет изменения в редакторе.
+     * Если заметка выбрана - восстанавливает её сохраненные данные.
+     * Если заметка не выбрана - очищает поля и снимает выделение.
+     */
     @FXML
     private void handleClear() {
         if (currentNote != null && listView.getSelectionModel().getSelectedItem() != null) {
@@ -136,8 +194,14 @@ public class ContentViewController {
             currentNote = null;
             listView.getSelectionModel().clearSelection();
         }
+        resetFavoriteButton();
     }
 
+    /**
+     * Фильтрует заметки по текстовому запросу из поля поиска.
+     * Поиск выполняется по заголовку и содержимому заметки без учета регистра.
+     * Пустой запрос отображает все заметки.
+     */
     private void filterNotes() {
         String filter = searchField.getText().toLowerCase();
         filteredNotes.setPredicate(note -> {
@@ -147,6 +211,10 @@ public class ContentViewController {
         });
     }
 
+    /**
+     * Обновляет статистику заметок: общее количество и количество избранных.
+     * Данные получаются из базы данных.
+     */
     private void updateStats() {
         int CountPinned = 0;
 
@@ -166,6 +234,10 @@ public class ContentViewController {
         statsLabel.setText("📊 Всего: " + total + " | ⭐ Избранных: " + CountPinned);
     }
 
+    /**
+     * Отображает информационное диалоговое окно с заданным заголовком и текстом.
+     * Применяет к окну стили из CSS-файла.
+     */
     private void showAlert(String title, String content) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -187,7 +259,10 @@ public class ContentViewController {
 //        );
     }
 
-
+    /**
+     * Загружает все заметки текущего пользователя из базы данных.
+     * Полученные заметки добавляются в список ListNotesFromUser.
+     */
     private void getInit(){
         String sql = "SELECT * FROM notes WHERE id_user = ?";
         try(Connection con = conn.getCon();
@@ -214,18 +289,18 @@ public class ContentViewController {
     // загружаем заметки пользователя
     private void loadNotes(){}
 
-    //получем айди пользователя из стартового окна
+    /**
+     * Устанавливает идентификатор пользователя, полученный из окна авторизации.
+     * Инициализирует загрузку заметок и обновляет отображение списка.
+     */
     public void setIdUser(int idUser){
         this.idUser = idUser;
         System.out.println("id user = " + idUser);
-        getInit();  // загружаем заметки для этого пользователя
+        getInit();
 
-        // Обновляем отображение
         filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
         listView.setItems(filteredNotes);
         updateStats();
     }
-
-
 
 }

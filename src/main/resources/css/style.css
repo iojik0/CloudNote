@@ -1,25 +1,151 @@
+/* ============================ ROOT & БАЗОВЫЕ СТИЛИ ============================ */
+
 .root {
     -fx-background-color: #0D1117;
     -fx-font-family: -fx-system;
     -fx-font-smoothing-type: gray;
 }
 
+/* ================= СТИЛИ ДЛЯ StartController (окно авторизации) ================ */
+
+/* Контейнер авторизации */
+.auth-container {
+    -fx-background-color: #0D1117;
+}
+
+.auth-pane {
+    -fx-background-color: #0D1117;
+}
+
+.auth-content {
+    -fx-background-color: #0D1117;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+/* Заголовок приложения на стартовом экране */
+.app-title-auth {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00E5FF;
+}
+
+/* Заголовки форм (Вход / Регистрация) */
+.auth-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C9D1D9;
+}
+
+/* Форма ввода */
+.auth-form {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #21262D;
+    -fx-border-width: 1;
+    -fx-padding: 25 35;
+    -fx-min-width: 300;
+    -fx-max-width: 350;
+    -fx-pref-width: 320;
+}
+
+/* Поля ввода */
+.auth-field {
+    -fx-background-color: #0D1117;
+    -fx-text-fill: #C9D1D9;
+    -fx-prompt-text-fill: #8B949E;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #21262D;
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+    -fx-min-width: 220;
+    -fx-max-width: 280;
+    -fx-pref-width: 250;
+}
+
+.auth-field:focused {
+    -fx-border-color: #00E5FF;
+    -fx-border-width: 1;
+}
+
+/* Сообщения об ошибках */
+.error-label {
+    -fx-font-size: 11px;
+    -fx-padding: 4 0 0 8;
+    -fx-text-fill: #00E5FF;
+}
+
+/* Контейнер для кнопок на стартовом экране */
+.button-container {
+    -fx-padding: 0;
+}
+
+/* Кнопки на панелях авторизации (общие) */
+.auth-pane .primary-button {
+    -fx-pref-width: 200;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+}
+
+.auth-pane .secondary-button {
+    -fx-pref-width: 200;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+}
+
+/* Кнопки внутри форм авторизации */
+.auth-form .primary-button,
+.auth-form .secondary-button {
+    -fx-padding: 8 24;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-min-width: 90;
+}
+
+.auth-form .primary-button {
+    -fx-background-color: #00E5FF;
+    -fx-text-fill: #0D1117;
+}
+
+.auth-form .secondary-button {
+    -fx-background-color: #21262D;
+    -fx-text-fill: #C9D1D9;
+}
+
+.auth-form .secondary-button:hover {
+    -fx-background-color: #30363D;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* Контейнер для основного контента после авторизации */
+.content-pane {
+    -fx-background-color: #0D1117;
+}
+
+/* =============== СТИЛИ ДЛЯ ContentViewController (главное окно) =============== */
+
+/* Верхняя панель */
 .top-panel {
     -fx-background-color: #0D1117;
     -fx-border-color: transparent transparent #21262D transparent;
     -fx-border-width: 1;
 }
 
+/* Иконка облака */
 .cloud-icon {
     -fx-opacity: 0.5;
 }
 
+/* Заголовок приложения */
 .app-title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #00E5FF;
 }
 
+/* Поле поиска */
 .search-field {
     -fx-background-color: #161B22;
     -fx-text-fill: #C9D1D9;
@@ -37,12 +163,23 @@
     -fx-border-width: 1;
 }
 
+/* Левое меню */
 .left-menu {
     -fx-background-color: #0D1117;
     -fx-border-color: transparent #21262D transparent transparent;
     -fx-border-width: 1;
 }
 
+/* Заголовок меню */
+.menu-header {
+    -fx-text-fill: #00E5FF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 12;
+    -fx-letter-spacing: 1px;
+}
+
+/* Кнопки меню */
 .menu-button {
     -fx-background-color: transparent;
     -fx-text-fill: #C9D1D9;
@@ -62,25 +199,32 @@
     -fx-background-color: #30363D;
 }
 
+/* Центральный SplitPane */
 .center-split {
     -fx-background-color: #0D1117;
 }
 
+/* Разделитель SplitPane */
 .split-pane-divider {
     -fx-background-color: #21262D;
     -fx-padding: 0 1;
 }
 
+/* Панель со списком заметок */
 .list-panel {
     -fx-background-color: #0D1117;
 }
 
-.panel-title {
-    -fx-font-size: 13px;
+/* Заголовок панели */
+.panel-header {
+    -fx-text-fill: #00E5FF;
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-text-fill: #8B949E;
+    -fx-padding: 0 0 0 0;
+    -fx-letter-spacing: 1px;
 }
 
+/* Список заметок */
 .notes-list {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
@@ -105,16 +249,19 @@
     -fx-border-width: 0 0 0 2;
 }
 
+/* Статистика заметок */
 .stats-label {
     -fx-text-fill: #8B949E;
     -fx-font-size: 11px;
     -fx-padding: 8 0 0 0;
 }
 
+/* Панель редактора */
 .editor-panel {
     -fx-background-color: #0D1117;
 }
 
+/* Поле заголовка */
 .title-field {
     -fx-background-color: #161B22;
     -fx-text-fill: #C9D1D9;
@@ -133,6 +280,7 @@
     -fx-border-width: 1;
 }
 
+/* Область содержимого заметки */
 .content-area {
     -fx-background-color: #161B22;
     -fx-text-fill: #C9D1D9;
@@ -158,6 +306,9 @@
     -fx-background-color: #161B22;
 }
 
+/* ============================= ОБЩИЕ СТИЛИ КНОПОК ============================= */
+
+/* Основная кнопка (акцентная) */
 .primary-button {
     -fx-background-color: #00E5FF;
     -fx-text-fill: #0D1117;
@@ -176,6 +327,7 @@
     -fx-background-color: #00B8D4;
 }
 
+/* Вторичная кнопка */
 .secondary-button {
     -fx-background-color: #21262D;
     -fx-text-fill: #C9D1D9;
@@ -193,6 +345,48 @@
 .secondary-button:pressed {
     -fx-background-color: #3D444D;
 }
+
+/* Кнопка избранного (звездочка) */
+.favorite-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8B949E;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+}
+
+.favorite-button:hover {
+    -fx-text-fill: #C9D1D9;
+    -fx-background-color: #21262D;
+}
+
+.favorite-button:pressed {
+    -fx-background-color: #30363D;
+}
+
+.favorite-button.favorite {
+    -fx-text-fill: #00E5FF;
+}
+
+.favorite-button.favorite:hover {
+    -fx-text-fill: #33FFF5;
+    -fx-background-color: #21262D;
+}
+
+.favorite-button.favorite:pressed {
+    -fx-text-fill: #00B8D4;
+    -fx-background-color: #30363D;
+}
+
+/* ============================= СТИЛИ СКРОЛЛБАРОВ ============================== */
 
 .scroll-bar:vertical {
     -fx-background-color: transparent;
@@ -224,6 +418,8 @@
     -fx-padding: 0;
 }
 
+/* ======================= СТИЛИ ДИАЛОГОВЫХ ОКОН (Alert) ======================== */
+
 .dialog-pane {
     -fx-background-color: #161B22;
     -fx-background-radius: 8;
@@ -234,8 +430,17 @@
     -fx-background-radius: 8 8 0 0;
 }
 
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #C9D1D9;
+}
+
 .dialog-pane .content {
     -fx-background-color: #161B22;
+}
+
+.dialog-pane .content.label {
+    -fx-text-fill: #C9D1D9;
+    -fx-font-size: 13px;
 }
 
 .dialog-pane .button {
@@ -247,149 +452,4 @@
 
 .dialog-pane .button:hover {
     -fx-background-color: #30363D;
-}
-
-.menu-header {
-    -fx-text-fill: #00E5FF;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 0 12;
-    -fx-letter-spacing: 1px;
-}
-
-.panel-header {
-    -fx-text-fill: #00E5FF;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 0 0;
-    -fx-letter-spacing: 1px;
-}
-
-.auth-container {
-    -fx-background-color: #0D1117;
-}
-
-.auth-pane {
-    -fx-background-color: #0D1117;
-}
-
-.auth-content {
-    -fx-background-color: #0D1117;
-    -fx-max-width: Infinity;
-    -fx-max-height: Infinity;
-}
-
-.logo-container {
-    -fx-opacity: 1;
-}
-
-.auth-pane .app-title {
-    -fx-font-size: 36px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #00E5FF;
-}
-
-.auth-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #C9D1D9;
-}
-
-.auth-form {
-    -fx-background-color: #161B22;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: #21262D;
-    -fx-border-width: 1;
-    -fx-padding: 25 35;
-    -fx-min-width: 300;
-    -fx-max-width: 350;
-    -fx-pref-width: 320;
-}
-
-.auth-field {
-    -fx-background-color: #0D1117;
-    -fx-text-fill: #C9D1D9;
-    -fx-prompt-text-fill: #8B949E;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-border-color: #21262D;
-    -fx-border-width: 1;
-    -fx-padding: 10 14;
-    -fx-min-width: 220;
-    -fx-max-width: 280;
-    -fx-pref-width: 250;
-}
-
-.auth-field:focused {
-    -fx-border-color: #00E5FF;
-    -fx-border-width: 1;
-}
-
-.error-label {
-    -fx-font-size: 11px;
-    -fx-padding: 4 0 0 8;
-    -fx-text-fill: #00E5FF;
-}
-
-.button-container {
-    -fx-padding: 0;
-}
-
-.auth-pane .primary-button {
-    -fx-pref-width: 200;
-    -fx-padding: 10 30;
-    -fx-font-size: 14px;
-}
-
-.auth-pane .secondary-button {
-    -fx-pref-width: 200;
-    -fx-padding: 10 30;
-    -fx-font-size: 14px;
-}
-
-.auth-pane .cloud-icon {
-    -fx-opacity: 0.5;
-}
-
-.auth-pane .cloud-dot {
-    -fx-fill: #00E5FF;
-    -fx-opacity: 0.6;
-}
-
-.content-pane {
-    -fx-background-color: #0D1117;
-}
-
-.root-pane {
-    -fx-background-color: #0D1117;
-}
-
-.app-title-auth {
-    -fx-font-size: 36px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #00E5FF;
-}
-
-.auth-form .primary-button,
-.auth-form .secondary-button {
-    -fx-padding: 8 24;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-min-width: 90;
-}
-
-.auth-form .primary-button {
-    -fx-background-color: #00E5FF;
-    -fx-text-fill: #0D1117;
-}
-
-.auth-form .secondary-button {
-    -fx-background-color: #21262D;
-    -fx-text-fill: #C9D1D9;
-}
-
-.auth-form .secondary-button:hover {
-    -fx-background-color: #30363D;
-    -fx-text-fill: #FFFFFF;
 }
