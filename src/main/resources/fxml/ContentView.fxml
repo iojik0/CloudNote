@@ -45,7 +45,7 @@
             <Label text="МЕНЮ" styleClass="menu-header"/>
             <Region prefHeight="4"/>
 
-            <Button text="Избранное" styleClass="menu-button" onAction="#handleFavorite"/>
+            <Button text="Избранное" styleClass="menu-button" onAction="#handleFavorite" fx:id="BtPinned"/>
             <Button text="Новая заметка" styleClass="menu-button" onAction="#handleNewNote"/>
             <Button text="Удалить заметку" styleClass="menu-button" onAction="#handleDeleteNote"/>
             <Button text="Настройки" styleClass="menu-button" onAction="#handleSettings"/>
