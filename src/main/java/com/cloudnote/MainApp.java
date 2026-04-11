@@ -16,15 +16,17 @@ public class MainApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/fxml/StartView.fxml"));
         BorderPane root = fxmlLoader.load();
         Scene scene = new Scene(root, 800, 600);
+
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                "/icons/CloudNote-256.png")));
+                "/icons/CloudNoteIcon.png")));
+
         stage.getIcons().add(icon);
         stage.setTitle("CloudNote");
         stage.setScene(scene);
         stage.show();
     }
-    // гаддем
+
     public static void main(String[] args) {
         launch();
     }
