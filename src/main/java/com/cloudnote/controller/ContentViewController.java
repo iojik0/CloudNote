@@ -1,6 +1,9 @@
 package com.cloudnote.controller;
 
+import com.cloudnote.database.DatabaseConnection;
 import com.cloudnote.model.Note;
+import com.cloudnote.model.NoteModel;
+import com.mysql.cj.jdbc.ConnectionImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -9,21 +12,31 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class ContentViewController {
 
     @FXML private TextField searchField;
-    @FXML private ListView<Note> listView;
+    @FXML private ListView<NoteModel> listView;
     @FXML private Label statsLabel;
     @FXML private TextField titleField;
     @FXML private TextArea noteContentArea;
-    @FXML
-    private BorderPane rootPane;
+    @FXML private BorderPane rootPane;
 
-    private ObservableList<Note> notesList = FXCollections.observableArrayList();
-    private FilteredList<Note> filteredNotes;
-    private Note currentNote;
+
+    DatabaseConnection conn = new DatabaseConnection();
+
+    private ObservableList<NoteModel> ListNotesFromUser  = FXCollections.observableArrayList();
+
+    //private ObservableList<Note> notesList = FXCollections.observableArrayList();
+    private FilteredList<NoteModel> filteredNotes;
+    private NoteModel currentNote;
     private BorderPane parentContainer;
     private int idUser;
+
     public void setParentContainer(BorderPane container) {
         this.parentContainer = container;
         if (parentContainer != null) {
@@ -34,13 +47,13 @@ public class ContentViewController {
 
     @FXML
     public void initialize() {
-        loadSampleNotes();
-        filteredNotes = new FilteredList<>(notesList, p -> true);
+        getInit();
+        filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
         listView.setItems(filteredNotes);
 
-        listView.setCellFactory(lv -> new ListCell<Note>() {
+        listView.setCellFactory(lv -> new ListCell<NoteModel>() {
             @Override
-            protected void updateItem(Note note, boolean empty) {
+            protected void updateItem(NoteModel note, boolean empty) {
                 super.updateItem(note, empty);
                 if (empty || note == null) {
                     setText(null);
@@ -48,7 +61,7 @@ public class ContentViewController {
                 } else {
                     setText(note.getTitle());
                     getStyleClass().add("note-cell");
-                    if (note.isFavorite()) {
+                    if (note.isPin()) {
                         getStyleClass().add("favorite-cell");
                     } else {
                         getStyleClass().remove("favorite-cell");
@@ -61,23 +74,23 @@ public class ContentViewController {
             if (newVal != null) {
                 currentNote = newVal;
                 titleField.setText(newVal.getTitle());
-                noteContentArea.setText(newVal.getContent());
+                noteContentArea.setText(newVal.getText());
             }
         });
 
         searchField.textProperty().addListener((obs, old, newVal) -> filterNotes());
 
         updateStats();
-        notesList.addListener((javafx.collections.ListChangeListener.Change<? extends Note> c) -> updateStats());
+        ListNotesFromUser.addListener((javafx.collections.ListChangeListener.Change<? extends NoteModel> c) -> updateStats());
     }
 
     @FXML
     private void handleFavorite() {
-        Note selected = listView.getSelectionModel().getSelectedItem();
+        NoteModel selected = listView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            selected.setFavorite(!selected.isFavorite());
+            selected.setPin(!selected.isPin());
             listView.refresh();
-            String status = selected.isFavorite() ? "добавлена в" : "удалена из";
+            String status = selected.isPin() ? "добавлена в" : "удалена из";
             showAlert("Избранное", "Заметка " + status + " избранного!");
             updateStats();
         } else {
@@ -93,11 +106,12 @@ public class ContentViewController {
         listView.getSelectionModel().clearSelection();
     }
 
+    // БУДУЩЕМУ МНЕ - ДОДЕЛАТЬ (ЗАХХУЯРИТЬ СЮДА ЗАПРОС НА УДАЛЕНИЕ ЗАМЕТКИ)
     @FXML
     private void handleDeleteNote() {
-        Note selected = listView.getSelectionModel().getSelectedItem();
+        NoteModel selected = listView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            notesList.remove(selected);
+            ListNotesFromUser.remove(selected);
             handleClear();
             showAlert("Успех", "Заметка удалена!");
             updateStats();
@@ -115,7 +129,7 @@ public class ContentViewController {
     private void handleClear() {
         if (currentNote != null && listView.getSelectionModel().getSelectedItem() != null) {
             titleField.setText(currentNote.getTitle());
-            noteContentArea.setText(currentNote.getContent());
+            noteContentArea.setText(currentNote.getText());
         } else {
             titleField.clear();
             noteContentArea.clear();
@@ -123,30 +137,9 @@ public class ContentViewController {
             listView.getSelectionModel().clearSelection();
         }
     }
-
     @FXML
     private void handleSave() {
-        String title = titleField.getText().trim();
-        String content = noteContentArea.getText();
 
-        if (title.isEmpty()) {
-            showAlert("Ошибка", "Заголовок не может быть пустым!");
-            return;
-        }
-
-        if (currentNote != null) {
-            currentNote.setTitle(title);
-            currentNote.setContent(content);
-            listView.refresh();
-            showAlert("Успех", "Заметка сохранена!");
-        } else {
-            Note newNote = new Note(title, content, false);
-            notesList.add(newNote);
-            listView.getSelectionModel().select(newNote);
-            showAlert("Успех", "Новая заметка создана!");
-        }
-        updateStats();
-        filterNotes();
     }
 
     private void filterNotes() {
@@ -154,14 +147,27 @@ public class ContentViewController {
         filteredNotes.setPredicate(note -> {
             if (filter == null || filter.isEmpty()) return true;
             return note.getTitle().toLowerCase().contains(filter) ||
-                    note.getContent().toLowerCase().contains(filter);
+                    note.getText().toLowerCase().contains(filter);
         });
     }
 
     private void updateStats() {
-        int total = notesList.size();
-        int favorites = (int) notesList.stream().filter(Note::isFavorite).count();
-        statsLabel.setText("📊 Всего: " + total + " | ⭐ Избранных: " + favorites);
+        int CountPinned = 0;
+
+        String sql = "SELECT COUNT(*) FROM notes WHERE isPin = TRUE AND id_user = ?";
+        try(Connection con = conn.getCon();
+            PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, idUser);
+            try(ResultSet rs = ps.executeQuery()){
+                if(rs.next()){
+                    CountPinned = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        int total = ListNotesFromUser.size();
+        statsLabel.setText("📊 Всего: " + total + " | ⭐ Избранных: " + CountPinned);
     }
 
     private void showAlert(String title, String content) {
@@ -176,13 +182,37 @@ public class ContentViewController {
     }
 
     private void loadSampleNotes() {
-        notesList.addAll(
-                new Note("Добро пожаловать в CloudNote!", "☁️ Ваше личное облачное пространство для заметок.\n\n✨ Особенности:\n• Тёмная тема\n• Поиск по заметкам\n• Избранное\n• Быстрое редактирование", false),
-                new Note("Идеи для проекта", "🎯 Добавьте сюда свои мысли и идеи...\n\n1. Реализовать синхронизацию\n2. Добавить теги\n3. Экспорт в PDF", true),
-                new Note("Список дел", "✅ Сегодня:\n• Создать заметку\n• Сохранить изменения\n• Организовать в избранное\n• Наслаждаться порядком!", false),
-                new Note("Вдохновение", "\"Облачные заметки всегда под рукой!\"\n\nЦитата дня: \"Лучшая заметка - та, которую вы написали\"", true),
-                new Note("Рецепты", "☕ Идеальный кофе:\n1. Свежемолотые зёрна\n2. Вода 90-96°C\n3. Наслаждение\n\n🍰 Чизкейк:\n• Сливочный сыр\n• Печенье\n• Любовь к готовке", false)
-        );
+//        notesList.addAll(
+//                new Note("Добро пожаловать в CloudNote!", "☁️ Ваше личное облачное пространство для заметок.\n\n✨ Особенности:\n• Тёмная тема\n• Поиск по заметкам\n• Избранное\n• Быстрое редактирование", false),
+//                new Note("Идеи для проекта", "🎯 Добавьте сюда свои мысли и идеи...\n\n1. Реализовать синхронизацию\n2. Добавить теги\n3. Экспорт в PDF", true),
+//                new Note("Список дел", "✅ Сегодня:\n• Создать заметку\n• Сохранить изменения\n• Организовать в избранное\n• Наслаждаться порядком!", false),
+//                new Note("Вдохновение", "\"Облачные заметки всегда под рукой!\"\n\nЦитата дня: \"Лучшая заметка - та, которую вы написали\"", true),
+//                new Note("Рецепты", "☕ Идеальный кофе:\n1. Свежемолотые зёрна\n2. Вода 90-96°C\n3. Наслаждение\n\n🍰 Чизкейк:\n• Сливочный сыр\n• Печенье\n• Любовь к готовке", false)
+//        );
+    }
+
+
+    private void getInit(){
+        String sql = "SELECT * FROM notes WHERE id_user = ?";
+        try(Connection con = conn.getCon();
+            PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, idUser);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    NoteModel model = new NoteModel(
+                            rs.getInt("id"),
+                            rs.getInt("id_user"),
+                            rs.getString("title"),
+                            rs.getString("text"),
+                            rs.getTimestamp("date") != null ? rs.getTimestamp("date").toLocalDateTime() : null,
+                            rs.getBoolean("ispin"));
+
+                    ListNotesFromUser.add(model);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // загружаем заметки пользователя
@@ -191,7 +221,13 @@ public class ContentViewController {
     //получем айди пользователя из стартового окна
     public void setIdUser(int idUser){
         this.idUser = idUser;
-        System.out.println("id user = "+idUser);
+        System.out.println("id user = " + idUser);
+        getInit();  // загружаем заметки для этого пользователя
+
+        // Обновляем отображение
+        filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
+        listView.setItems(filteredNotes);
+        updateStats();
     }
 
 

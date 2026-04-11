@@ -8,6 +8,7 @@ module com.cloudnote.cloudnote {
     requires org.kordamp.ikonli.javafx;
     requires eu.hansolo.tilesfx;
     requires java.sql;
+    requires mysql.connector.j;
 
     opens com.cloudnote to javafx.fxml;
     exports com.cloudnote;
