@@ -329,6 +329,7 @@
 .error-label {
     -fx-font-size: 11px;
     -fx-padding: 4 0 0 8;
+    -fx-text-fill: #00E5FF;
 }
 
 .button-container {
