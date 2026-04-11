@@ -51,7 +51,6 @@ public class ContentViewController {
 
     @FXML
     public void initialize() {
-        loadMeetedNotes();
         resetFavoriteButton();
         getInit();
         filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
@@ -334,18 +333,6 @@ public class ContentViewController {
         alert.showAndWait();
     }
 
-    private void loadMeetedNotes() {
-        ListNotesFromUser.addAll(
-                new NoteModel(
-                        0,
-                        1,
-                        "Добро пожаловать в CloudNote!",
-                        "☁️ Ваше личное облачное пространство для заметок.\n\n✨ Особенности:\n• Тёмная тема\n• Поиск по заметкам\n• Избранное",
-                        LocalDateTime.now(),
-                        false
-                )
-        );
-    }
 
     /**
      * Загружает все заметки текущего пользователя из базы данных.

@@ -239,32 +239,78 @@ public class StartController {
     /**
      * Обрабатывает подтверждение регистрации нового пользователя.
      * Проверяет валидность введенных данных (пароль, имя пользователя, логин).
-     * При успешной проверке добавляет пользователя в базу данных,
+     * При успешной проверке добавляет пользователя в базу данных и создает
+     * приветственную заметку,
      * очищает форму и переходит к основному окну приложения.
      */
     @FXML
     private void handleClickSignUpOk() {
-        if(isPasswordValid && isUsernameValid && isLoginValid){
+        if (isPasswordValid && isUsernameValid && isLoginValid) {
             String sql = "INSERT INTO users (username, login, password) VALUES (?, ?, ?)";
             String login = TfSignUpLogin.getText().trim();
+
             try (Connection con = conn.getCon();
-                 PreparedStatement ps = con.prepareStatement(sql)) {
+                 PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
                 ps.setString(1, TfSignUpUsername.getText());
                 ps.setString(2, TfSignUpLogin.getText());
                 ps.setString(3, PasswordHasher.hashPassword(TfSignUpPass.getText()));
 
                 int rowsAdd = ps.executeUpdate();
-                if(rowsAdd > 0){
-                    System.out.println("Регистрация прошла успешно");
-                    handleClickSignUpCancel(); // очистить поля после регистрации
-                    //переход в основное окно
-                    getContent(login);
-                    BpContent.setVisible(true);
+
+                if (rowsAdd > 0) {
+                    // Получаем ID нового пользователя
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            int userId = rs.getInt(1);
+                            System.out.println("Регистрация прошла успешно. ID: " + userId);
+
+                            // Создаём приветственную заметку
+                            createWelcomeNote(con, userId);
+                            handleClickSignUpCancel();
+                            getContent(login);
+                            BpContent.setVisible(true);
+                        }
+                    }
                 }
+
             } catch (SQLException e) {
-                e.printStackTrace();
+                System.out.println("Ошибка, Не удалось зарегистрироваться: " + e.getMessage());
             }
+        }
+    }
+    // создание приветственной заметки
+    private void createWelcomeNote(Connection con, int userId) {
+        String sql = "INSERT INTO notes (id_user, title, text, ispin) VALUES (?, ?, ?, ?)";
+        // добавить в будущем
+        //💡 Совет: Попробуйте Markdown в этой заметке!
+        //        Напишите **жирный текст** или *курсив* - и увидите результат
+        //в окне предпросмотра.
+        String welcomeText = """
+        ☁️ Ваше личное облачное пространство для заметок.
+        
+        ✨ Особенности:
+        • Тёмная тема
+        • Поиск по заметкам
+        • Избранное
+        • Быстрое редактирование
+        • Просмотр заметки в формате markdown
+       
+       
+        Made with ☕ by iojik0 & LanaRaw
+        """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, "Добро пожаловать в CloudNote!");
+            ps.setString(3, welcomeText);
+            ps.setBoolean(4, false);
+
+            ps.executeUpdate();
+            System.out.println("Приветственная заметка создана");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
