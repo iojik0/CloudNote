@@ -8,7 +8,7 @@ public class DatabaseConnection {
     public Connection getCon() throws SQLException {
         Connection conn;
         conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:5432/cloudnote",
+                "jdbc:postgresql://localhost:5432/cloudnote?characterEncoding=utf8&useUnicode=true",
                 "postgres",
                 "1234"
         );
