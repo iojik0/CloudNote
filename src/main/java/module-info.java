@@ -9,6 +9,7 @@ module com.cloudnote.cloudnote {
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires mysql.connector.j;
+    requires com.google.protobuf;
 
     opens com.cloudnote to javafx.fxml;
     exports com.cloudnote;

@@ -3,6 +3,7 @@ package com.cloudnote.controller;
 import com.cloudnote.database.DatabaseConnection;
 import com.cloudnote.model.Note;
 import com.cloudnote.model.NoteModel;
+import com.google.protobuf.NullValue;
 import com.mysql.cj.jdbc.ConnectionImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,10 +13,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ContentViewController {
 
@@ -26,12 +26,12 @@ public class ContentViewController {
     @FXML private TextArea noteContentArea;
     @FXML private BorderPane rootPane;
     @FXML private Button favoriteButton;
-
+    @FXML private Button BtPinned;
     DatabaseConnection conn = new DatabaseConnection();
 
     private ObservableList<NoteModel> ListNotesFromUser  = FXCollections.observableArrayList();
 
-    //private ObservableList<Note> notesList = FXCollections.observableArrayList();
+    boolean isPinned = false;
     private FilteredList<NoteModel> filteredNotes;
     private NoteModel currentNote;
     private BorderPane parentContainer;
@@ -51,6 +51,7 @@ public class ContentViewController {
 
     @FXML
     public void initialize() {
+        loadMeetedNotes();
         resetFavoriteButton();
         getInit();
         filteredNotes = new FilteredList<>(ListNotesFromUser, p -> true);
@@ -92,9 +93,27 @@ public class ContentViewController {
 
     /**
      * Обработчик кнопки "Избранное" в меню.
+     * При нажатии меняет заметки в листе либо на избранные либо на все
+     * в зависимости от состояния
      */
+
     @FXML
-    private void handleFavorite() { }
+    private void handleFavorite() {
+        if(isPinned){
+            isPinned = false;
+            ListNotesFromUser.clear();
+            getInit();
+            listView.refresh();
+            BtPinned.setText("Избранное");
+        }
+        else{
+            isPinned = true;
+            ListNotesFromUser.clear();
+            getPinnedNotes();
+            listView.refresh();
+            BtPinned.setText("Все заметки");
+        }
+    }
 
     /**
      * Обрабатывает нажатие кнопки избранного (звездочки).
@@ -107,14 +126,29 @@ public class ContentViewController {
     private void handleToggleFavorite() {
         NoteModel selected = listView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            selected.setPin(!selected.isPin());
-            listView.refresh();
-
-            updateFavoriteButton(selected);
-
-            String status = selected.isPin() ? "добавлена в" : "удалена из";
-            showAlert("Избранное", "Заметка " + status + " ★!");
-            updateStats();
+            int id = selected.getId();
+            String sql = "UPDATE notes SET ispin = ? WHERE id = ?";
+            boolean isPin = selected.isPin();
+            try(Connection con = conn.getCon();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setBoolean(1, !isPin);
+                ps.setInt(2, id);
+                int count = ps.executeUpdate();
+                if(count > 0) {
+                    selected.setPin(!isPin);
+                    String status = selected.isPin() ? "добавлена в" : "удалена из";
+                    showAlert("Избранное", "Заметка " + status + " ★!");
+                    if(isPinned){
+                        ListNotesFromUser.clear();
+                        getPinnedNotes();
+                    }
+                    updateStats();
+                    listView.refresh();
+                    updateFavoriteButton(selected);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             showAlert("Внимание", "Выберите заметку!");
         }
@@ -143,6 +177,8 @@ public class ContentViewController {
 
     /**
      * Обрабатывает нажатие кнопки "Новая заметка" в меню.
+     * создает заметку в бд, но добавляем через экземпляр модели
+     * чтобы снизить нагрузку
      */
     @FXML
     private void handleNewNote() {
@@ -151,20 +187,69 @@ public class ContentViewController {
         noteContentArea.clear();
         listView.getSelectionModel().clearSelection();
         resetFavoriteButton();
+        String sql = "INSERT INTO notes (id_user, title, text ,ispin) VALUES (?, ?, ?, ?)";
+        try (Connection con = conn.getCon();
+        PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+            ps.setInt(1, idUser);
+            ps.setString(2, "Новая запись");
+            ps.setString(3, "");
+            ps.setBoolean(4, false);
+            ps.executeUpdate();
+            try(ResultSet rs = ps.getGeneratedKeys()){
+                if(rs.next()){
+                    int id = rs.getInt(1);
+                    NoteModel newNote = new NoteModel(
+                            id, idUser, "Новая запись",
+                            "",
+                            LocalDateTime.now(),
+                            false);
+                    ListNotesFromUser.add(newNote);
+                    listView.getSelectionModel().select(newNote);
+                    titleField.setText(newNote.getTitle());
+                    noteContentArea.clear();
+                    resetFavoriteButton();
+                    updateStats();
+                    showAlert("Успех", "Новая заметка создана!");
+                }
+            }
+        } catch (SQLException e) {
+            showAlert("Ошибка", "Не удалось создать заметку: " + e.getMessage());
+        }
     }
 
-    // БУДУЩЕМУ МНЕ - ДОДЕЛАТЬ (ЗАХХУЯРИТЬ СЮДА ЗАПРОС НА УДАЛЕНИЕ ЗАМЕТКИ)
+
     /**
      * Обрабатывает нажатие кнопки "Удалить заметку" в меню.
      */
+
     @FXML
     private void handleDeleteNote() {
         NoteModel selected = listView.getSelectionModel().getSelectedItem();
+
         if (selected != null) {
-            ListNotesFromUser.remove(selected);
-            handleClear();
-            showAlert("Успех", "Заметка удалена!");
-            updateStats();
+            int id = selected.getId();
+            String sql = "DELETE FROM notes WHERE id = ?";
+
+            try (Connection con = conn.getCon();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+
+                ps.setInt(1, id);
+                int rowsAffected = ps.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    ListNotesFromUser.remove(selected);
+                    handleClear();
+                    showAlert("Успех", "Заметка удалена!");
+                    updateStats();
+                } else {
+                    showAlert("Ошибка", "Заметка не была удалена!");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Ошибка БД", "Не удалось удалить заметку: " + e.getMessage());
+            }
+
         } else {
             showAlert("Внимание", "Выберите заметку для удаления!");
         }
@@ -177,7 +262,7 @@ public class ContentViewController {
     private void handleSettings() {
         showAlert("Настройки", "Тема: Тёмная\nСтиль: CloudNote\nВерсия: 1.0");
     }
-
+    //убрать как и кнопку
     /**
      * Отменяет изменения в редакторе.
      * Если заметка выбрана - восстанавливает её сохраненные данные.
@@ -249,14 +334,17 @@ public class ContentViewController {
         alert.showAndWait();
     }
 
-    private void loadSampleNotes() {
-//        notesList.addAll(
-//                new Note("Добро пожаловать в CloudNote!", "☁️ Ваше личное облачное пространство для заметок.\n\n✨ Особенности:\n• Тёмная тема\n• Поиск по заметкам\n• Избранное\n• Быстрое редактирование", false),
-//                new Note("Идеи для проекта", "🎯 Добавьте сюда свои мысли и идеи...\n\n1. Реализовать синхронизацию\n2. Добавить теги\n3. Экспорт в PDF", true),
-//                new Note("Список дел", "✅ Сегодня:\n• Создать заметку\n• Сохранить изменения\n• Организовать в избранное\n• Наслаждаться порядком!", false),
-//                new Note("Вдохновение", "\"Облачные заметки всегда под рукой!\"\n\nЦитата дня: \"Лучшая заметка - та, которую вы написали\"", true),
-//                new Note("Рецепты", "☕ Идеальный кофе:\n1. Свежемолотые зёрна\n2. Вода 90-96°C\n3. Наслаждение\n\n🍰 Чизкейк:\n• Сливочный сыр\n• Печенье\n• Любовь к готовке", false)
-//        );
+    private void loadMeetedNotes() {
+        ListNotesFromUser.addAll(
+                new NoteModel(
+                        0,
+                        1,
+                        "Добро пожаловать в CloudNote!",
+                        "☁️ Ваше личное облачное пространство для заметок.\n\n✨ Особенности:\n• Тёмная тема\n• Поиск по заметкам\n• Избранное",
+                        LocalDateTime.now(),
+                        false
+                )
+        );
     }
 
     /**
@@ -286,8 +374,30 @@ public class ContentViewController {
         }
     }
 
-    // загружаем заметки пользователя
-    private void loadNotes(){}
+    private void getPinnedNotes(){
+        String sql = "SELECT * FROM notes WHERE id_user = ? and isPin = TRUE";
+        try(Connection con = conn.getCon();
+            PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, idUser);
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    NoteModel model = new NoteModel(
+                            rs.getInt("id"),
+                            rs.getInt("id_user"),
+                            rs.getString("title"),
+                            rs.getString("text"),
+                            rs.getTimestamp("date") != null ? rs.getTimestamp("date").toLocalDateTime() : null,
+                            rs.getBoolean("ispin"));
+
+                    ListNotesFromUser.add(model);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     /**
      * Устанавливает идентификатор пользователя, полученный из окна авторизации.
