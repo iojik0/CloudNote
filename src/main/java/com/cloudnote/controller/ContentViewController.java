@@ -202,7 +202,7 @@ public class ContentViewController {
                             "",
                             LocalDateTime.now(),
                             false);
-                    ListNotesFromUser.add(newNote);
+                    ListNotesFromUser.add(0, newNote);
                     listView.getSelectionModel().select(newNote);
                     titleField.setText(newNote.getTitle());
                     noteContentArea.clear();
