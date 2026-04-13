@@ -12,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -27,6 +29,12 @@ public class ContentViewController {
     @FXML private BorderPane rootPane;
     @FXML private Button favoriteButton;
     @FXML private Button BtPinned;
+
+    @FXML private VBox editorView;
+    @FXML private VBox webViewPanel;
+    @FXML private WebView webView;
+    @FXML private Button webViewFavoriteButton;
+
     DatabaseConnection conn = new DatabaseConnection();
 
     private ObservableList<NoteModel> ListNotesFromUser  = FXCollections.observableArrayList();
@@ -36,6 +44,7 @@ public class ContentViewController {
     private NoteModel currentNote;
     private BorderPane parentContainer;
     private int idUser;
+    private boolean isEditorMode = true;
 
     /**
      * Привязывает размеры корневого элемента к размерам родительского контейнера.
@@ -81,13 +90,20 @@ public class ContentViewController {
                 titleField.setText(newVal.getTitle());
                 noteContentArea.setText(newVal.getText());
                 updateFavoriteButton(newVal);
+                updateWebViewContent();
             }
         });
+
+        //сюда добавить Listener на автосэйв
 
         searchField.textProperty().addListener((obs, old, newVal) -> filterNotes());
 
         updateStats();
         ListNotesFromUser.addListener((javafx.collections.ListChangeListener.Change<? extends NoteModel> c) -> updateStats());
+
+        if (webView != null) {
+            updateWebViewContent();
+        }
     }
 
     /**
@@ -95,7 +111,6 @@ public class ContentViewController {
      * При нажатии меняет заметки в листе либо на избранные либо на все
      * в зависимости от состояния
      */
-
     @FXML
     private void handleFavorite() {
         if(isPinned){
@@ -144,6 +159,15 @@ public class ContentViewController {
                     updateStats();
                     listView.refresh();
                     updateFavoriteButton(selected);
+                    if (webViewFavoriteButton != null) {
+                        if (selected.isPin()) {
+                            webViewFavoriteButton.setText("★");
+                            webViewFavoriteButton.getStyleClass().add("favorite");
+                        } else {
+                            webViewFavoriteButton.setText("☆");
+                            webViewFavoriteButton.getStyleClass().remove("favorite");
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -160,9 +184,19 @@ public class ContentViewController {
         if (note != null && note.isPin()) {
             favoriteButton.setText("★");
             favoriteButton.getStyleClass().add("favorite");
+
+            if (webViewFavoriteButton != null) {
+                webViewFavoriteButton.setText("★");
+                webViewFavoriteButton.getStyleClass().add("favorite");
+            }
         } else {
             favoriteButton.setText("☆");
             favoriteButton.getStyleClass().remove("favorite");
+
+            if (webViewFavoriteButton != null) {
+                webViewFavoriteButton.setText("☆");
+                webViewFavoriteButton.getStyleClass().remove("favorite");
+            }
         }
     }
 
@@ -172,6 +206,11 @@ public class ContentViewController {
     private void resetFavoriteButton() {
         favoriteButton.setText("☆");
         favoriteButton.getStyleClass().remove("favorite");
+
+        if (webViewFavoriteButton != null) {
+            webViewFavoriteButton.setText("☆");
+            webViewFavoriteButton.getStyleClass().remove("favorite");
+        }
     }
 
     /**
@@ -220,7 +259,6 @@ public class ContentViewController {
     /**
      * Обрабатывает нажатие кнопки "Удалить заметку" в меню.
      */
-
     @FXML
     private void handleDeleteNote() {
         NoteModel selected = listView.getSelectionModel().getSelectedItem();
@@ -237,7 +275,7 @@ public class ContentViewController {
 
                 if (rowsAffected > 0) {
                     ListNotesFromUser.remove(selected);
-                    handleClear();
+                    //тут был метод очищения редактора
                     showAlert("Успех", "Заметка удалена!");
                     updateStats();
                 } else {
@@ -261,24 +299,304 @@ public class ContentViewController {
     private void handleSettings() {
         showAlert("Настройки", "Тема: Тёмная\nСтиль: CloudNote\nВерсия: 1.0");
     }
-    //убрать как и кнопку
+
     /**
-     * Отменяет изменения в редакторе.
-     * Если заметка выбрана - восстанавливает её сохраненные данные.
-     * Если заметка не выбрана - очищает поля и снимает выделение.
+     * Переключает между текстовым редактором и WebView
      */
     @FXML
-    private void handleClear() {
-        if (currentNote != null && listView.getSelectionModel().getSelectedItem() != null) {
-            titleField.setText(currentNote.getTitle());
-            noteContentArea.setText(currentNote.getText());
+    private void handleToggleWebView() {
+        isEditorMode = !isEditorMode;
+
+        if (isEditorMode) {
+            if (editorView != null && webViewPanel != null) {
+                editorView.setVisible(true);
+                editorView.setManaged(true);
+                webViewPanel.setVisible(false);
+                webViewPanel.setManaged(false);
+            }
+            noteContentArea.requestFocus();
         } else {
-            titleField.clear();
-            noteContentArea.clear();
-            currentNote = null;
-            listView.getSelectionModel().clearSelection();
+            updateWebViewContent();
+
+            if (editorView != null && webViewPanel != null) {
+                editorView.setVisible(false);
+                editorView.setManaged(false);
+                webViewPanel.setVisible(true);
+                webViewPanel.setManaged(true);
+            }
+            searchField.getParent().requestFocus();
         }
-        resetFavoriteButton();
+    }
+
+    /**
+     * Обновляет содержимое WebView на основе текущей заметки
+     */
+    private void updateWebViewContent() {
+        if (webView == null) return;
+
+        String title = titleField.getText();
+        String content = noteContentArea.getText();
+
+        if (title == null) title = "";
+        if (content == null) content = "";
+
+        String htmlContent = String.format("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    background-color: #0D1117;
+                    font-family: -fx-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 0;
+                    margin: 0;
+                    height: 100%%;
+                    overflow-x: hidden;
+                }
+                
+                .webview-container {
+                    width: 100%%;
+                    height: 100%%;
+                    background-color: #161B22;
+                    border-radius: 8px;
+                    border: 1px solid #21262D;
+                    overflow: auto;
+                    display: flex;
+                    flex-direction: column;
+                    box-sizing: border-box;
+                }
+                
+                .note-header {
+                    background-color: #0D1117;
+                    border-bottom: 1px solid #21262D;
+                    padding: 20px 24px;
+                    flex-shrink: 0;
+                }
+                
+                .note-title {
+                    color: #00E5FF;
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin: 0;
+                    word-wrap: break-word;
+                }
+                
+                .note-content {
+                    padding: 24px;
+                    color: #C9D1D9;
+                    font-size: 13px;
+                    line-height: 1.6;
+                    flex: 1;
+                    overflow-y: auto;
+                }
+                
+                .note-content p {
+                    margin-bottom: 14px;
+                    color: #C9D1D9;
+                }
+                
+                .note-content h1 {
+                    color: #00E5FF;
+                    font-size: 24px;
+                    margin: 20px 0 14px 0;
+                    border-bottom: 1px solid #21262D;
+                    padding-bottom: 6px;
+                }
+                
+                .note-content h2 {
+                    color: #00E5FF;
+                    font-size: 20px;
+                    margin: 18px 0 10px 0;
+                }
+                
+                .note-content h3 {
+                    color: #C9D1D9;
+                    font-size: 18px;
+                    margin: 14px 0 8px 0;
+                }
+                
+                .note-content strong {
+                    color: #00E5FF;
+                }
+                
+                .note-content code {
+                    background-color: #0D1117;
+                    color: #00E5FF;
+                    padding: 2px 5px;
+                    border-radius: 4px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    border: 1px solid #21262D;
+                }
+                
+                .note-content pre {
+                    background-color: #0D1117;
+                    border: 1px solid #21262D;
+                    border-radius: 6px;
+                    padding: 12px;
+                    overflow-x: auto;
+                    margin: 12px 0;
+                }
+                
+                .note-content pre code {
+                    background-color: transparent;
+                    border: none;
+                    padding: 0;
+                }
+                
+                .note-content blockquote {
+                    border-left: 3px solid #00E5FF;
+                    margin: 12px 0;
+                    padding-left: 16px;
+                    color: #8B949E;
+                }
+                
+                .note-content ul, .note-content ol {
+                    margin: 10px 0;
+                    padding-left: 24px;
+                }
+                
+                .note-content li {
+                    margin: 4px 0;
+                }
+                
+                .empty-note {
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #8B949E;
+                }
+                
+                ::-webkit-scrollbar {
+                    width: 0;
+                    height: 0;
+                    background: transparent;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: #0D1117;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: #30363D;
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: #3D444D;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="webview-container">
+                <div class="note-header">
+                    <div class="note-title">%s</div>
+                </div>
+                <div class="note-content">
+                    %s
+                </div>
+            </div>
+        </body>
+        </html>
+        """, escapeHtml(title), convertToHtml(content));
+
+        webView.getEngine().loadContent(htmlContent);
+    }
+
+    /**
+     * Экранирует HTML специальные символы
+     */
+    private String escapeHtml(String text) {
+        if (text == null || text.isEmpty()) return "Без заголовка";
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    /**
+     * Конвертирует текст с Markdown-подобным синтаксисом в HTML
+     */
+    private String convertToHtml(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return "<div class='empty-note'>✏️ Нет содержимого. Начните писать заметку...</div>";
+        }
+
+        // Экранируем HTML специальные символы
+        String html = text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+
+        // Заголовки
+        html = html.replaceAll("(?m)^### (.*)$", "<h3>$1</h3>");
+        html = html.replaceAll("(?m)^## (.*)$", "<h2>$1</h2>");
+        html = html.replaceAll("(?m)^# (.*)$", "<h1>$1</h1>");
+
+        // Жирный текст
+        html = html.replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>");
+        html = html.replaceAll("__(.*?)__", "<strong>$1</strong>");
+
+        // Курсив
+        html = html.replaceAll("\\*(.*?)\\*", "<em>$1</em>");
+        html = html.replaceAll("_(.*?)_", "<em>$1</em>");
+
+        // Зачеркнутый текст
+        html = html.replaceAll("~~(.*?)~~", "<del>$1</del>");
+
+        // Код
+        html = html.replaceAll("`(.*?)`", "<code>$1</code>");
+        html = html.replaceAll("```(.*?)```", "<pre><code>$1</code></pre>");
+
+        // Списки
+        html = html.replaceAll("(?m)^- (.*)$", "<li>$1</li>");
+        html = html.replaceAll("(?m)^\\* (.*)$", "<li>$1</li>");
+        html = html.replaceAll("(?m)^\\d+\\. (.*)$", "<li>$1</li>");
+
+        // Оборачиваем списки в ul/ol
+        if (html.contains("<li>")) {
+            html = html.replaceAll("(<li>.*?</li>)\\s*(?=<li>)", "$1");
+            if (html.matches("(?s).*<li>.*</li>.*")) {
+                html = html.replaceAll("(?s)(<li>.*?</li>)+", "<ul>$0</ul>");
+            }
+        }
+
+        // Цитаты
+        html = html.replaceAll("(?m)^> (.*)$", "<blockquote>$1</blockquote>");
+
+        // Горизонтальные линии
+        html = html.replaceAll("(?m)^---$", "<hr/>");
+        html = html.replaceAll("(?m)^\\*\\*\\*$", "<hr/>");
+
+        // Ссылки
+        html = html.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href='$2'>$1</a>");
+
+        // Переносы строк в параграфы
+        String[] paragraphs = html.split("\\n\\s*\\n");
+        StringBuilder result = new StringBuilder();
+        for (String para : paragraphs) {
+            String trimmed = para.trim();
+            if (!trimmed.isEmpty() &&
+                    !trimmed.startsWith("<h") &&
+                    !trimmed.startsWith("<ul") &&
+                    !trimmed.startsWith("<ol") &&
+                    !trimmed.startsWith("<blockquote") &&
+                    !trimmed.startsWith("<pre") &&
+                    !trimmed.startsWith("<hr")) {
+                result.append("<p>").append(para.replace("\n", "<br/>")).append("</p>");
+            } else {
+                result.append(para);
+            }
+        }
+
+        return result.toString();
     }
 
     /**
@@ -383,8 +701,6 @@ public class ContentViewController {
             throw new RuntimeException(e);
         }
     }
-
-
 
     /**
      * Устанавливает идентификатор пользователя, полученный из окна авторизации.
