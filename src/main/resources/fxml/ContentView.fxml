@@ -13,6 +13,8 @@
 <?import javafx.scene.shape.Circle?>
 
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.web.WebView?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cloudnote.controller.ContentViewController">
 
     <top>
@@ -68,29 +70,49 @@
                     <Label fx:id="statsLabel" styleClass="stats-label"/>
                 </VBox>
 
-                <VBox styleClass="editor-panel" minWidth="400">
-                    <padding>
-                        <Insets top="24" right="24" bottom="24" left="24"/>
-                    </padding>
-
-                    <Label text="РЕДАКТОР" styleClass="panel-header"/>
-                    <Region prefHeight="4"/>
-
-                    <TextField fx:id="titleField" promptText="Заголовок" styleClass="title-field"/>
-
-                    <VBox VBox.vgrow="ALWAYS" spacing="0">
+                <StackPane styleClass="right-panel-stack" minWidth="400">
+                    <VBox fx:id="editorView" styleClass="editor-panel" visible="true" managed="true">
                         <padding>
-                            <Insets top="12" right="0" bottom="12" left="0"/>
+                            <Insets top="24" right="24" bottom="24" left="24"/>
                         </padding>
-                        <TextArea fx:id="noteContentArea" promptText="Текст заметки..."
-                                  wrapText="true" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+
+                        <Label text="РЕДАКТОР" styleClass="panel-header"/>
+                        <Region prefHeight="4"/>
+
+                        <TextField fx:id="titleField" promptText="Заголовок" styleClass="title-field"/>
+
+                        <VBox VBox.vgrow="ALWAYS" spacing="0">
+                            <padding>
+                                <Insets top="12" right="0" bottom="12" left="0"/>
+                            </padding>
+                            <TextArea fx:id="noteContentArea" promptText="Текст заметки..."
+                                      wrapText="true" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+
+                        <HBox spacing="12" alignment="CENTER_RIGHT">
+                            <Button fx:id="favoriteButton" text="☆" styleClass="favorite-button" onAction="#handleToggleFavorite"/>
+                            <Button text="🌐 Предпросмотр" styleClass="secondary-button" onAction="#handleToggleWebView"/>
+                        </HBox>
                     </VBox>
 
-                    <HBox spacing="12" alignment="CENTER_RIGHT">
-                        <Button fx:id="favoriteButton" text="☆" styleClass="favorite-button" onAction="#handleToggleFavorite"/>
-                        <Button text="Очистить" styleClass="secondary-button" onAction="#handleClear"/>
-                    </HBox>
-                </VBox>
+                    <VBox fx:id="webViewPanel" styleClass="webview-panel" visible="false" managed="false" VBox.vgrow="ALWAYS">
+                        <padding>
+                            <Insets top="24" right="24" bottom="22" left="24"/>
+                        </padding>
+
+                        <Label text="ПРЕДПРОСМОТР" styleClass="panel-header"/>
+                        <Region prefHeight="4"/>
+
+                        <StackPane styleClass="webview-wrapper" VBox.vgrow="ALWAYS">
+                            <WebView fx:id="webView"/>
+                        </StackPane>
+
+                        <HBox spacing="12" alignment="CENTER_RIGHT">
+                            <Button fx:id="webViewFavoriteButton" text="☆" styleClass="favorite-button" onAction="#handleToggleFavorite"/>
+                            <Button text="✏ Редактор" styleClass="secondary-button" onAction="#handleToggleWebView"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
             </items>
         </SplitPane>
     </center>

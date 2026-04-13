@@ -306,6 +306,122 @@
     -fx-background-color: #161B22;
 }
 
+/* ======================= СТИЛИ ДЛЯ STACKPANE И WEBVIEW ======================== */
+
+/* Контейнер StackPane для переключения видов */
+.right-panel-stack {
+    -fx-background-color: #0D1117;
+}
+
+/* Панель WebView */
+.webview-panel {
+    -fx-background-color: #0D1117;
+}
+
+.web-view {
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* Контейнер WebView */
+.webview-content {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #21262D;
+    -fx-border-width: 1;
+}
+
+/* Стилизация самого WebView */
+.webview-content .web-view {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 6;
+}
+
+.webview-wrapper {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.webview-wrapper .web-view {
+    -fx-background-color: #161B22;
+    -fx-background-radius: 6;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* Кнопка переключения WebView */
+.webview-panel .secondary-button {
+    -fx-background-color: #21262D;
+    -fx-text-fill: #C9D1D9;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.webview-panel .secondary-button:hover {
+    -fx-background-color: #30363D;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* Кнопка избранного в WebView панели */
+.webview-panel .favorite-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8B949E;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+}
+
+.webview-panel .favorite-button:hover {
+    -fx-text-fill: #C9D1D9;
+    -fx-background-color: #21262D;
+}
+
+.webview-panel .favorite-button.favorite {
+    -fx-text-fill: #00E5FF;
+}
+
+.web-view .scroll-bar:vertical {
+    -fx-pref-width: 0;
+    -fx-background-color: transparent;
+}
+
+.web-view .scroll-bar:horizontal {
+    -fx-pref-height: 0;
+    -fx-background-color: transparent;
+}
+
+/* Стиль для кнопки переключения вида редактора */
+.toggle-view-button {
+    -fx-background-color: #21262D;
+    -fx-text-fill: #C9D1D9;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.toggle-view-button:hover {
+    -fx-background-color: #30363D;
+    -fx-text-fill: #FFFFFF;
+}
+
+.toggle-view-button:pressed {
+    -fx-background-color: #3D444D;
+}
+
 /* ============================= ОБЩИЕ СТИЛИ КНОПОК ============================= */
 
 /* Основная кнопка (акцентная) */
@@ -418,6 +534,25 @@
     -fx-padding: 0;
 }
 
+/* Горизонтальные скроллбары */
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 8;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #30363D;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #3D444D;
+}
+
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+
 /* ======================= СТИЛИ ДИАЛОГОВЫХ ОКОН (Alert) ======================== */
 
 .dialog-pane {
@@ -452,4 +587,20 @@
 
 .dialog-pane .button:hover {
     -fx-background-color: #30363D;
+}
+
+/* ======================= СТИЛИ ДЛЯ ВСПЛЫВАЮЩИХ ПОДСКАЗОК ======================= */
+
+.tooltip {
+    -fx-background-color: #21262D;
+    -fx-text-fill: #C9D1D9;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #30363D;
+    -fx-font-size: 11px;
+    -fx-padding: 6 10;
+}
+
+.stack-pane {
+    -fx-padding: 0;
 }
