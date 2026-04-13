@@ -10,9 +10,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.sql.*;
@@ -54,10 +54,26 @@ public class StartController {
     @FXML private Button BtSignInOk;
     @FXML private Button BtSignInCancel;
 
+    @FXML private StackPane iconContainer;
 
     public void initialize() {
         valueChecking();
         PMain.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+
+        loadIcon(iconContainer, 100);
+    }
+
+    private void loadIcon(StackPane container, int size) {
+        try {
+            Image image = new Image(getClass().getResourceAsStream("/icons/CloudNoteIcon.png"));
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(size);
+            imageView.setFitHeight(size);
+            imageView.setPreserveRatio(true);
+            container.getChildren().add(imageView);
+        } catch (Exception e) {
+            System.out.println("Иконка не найдена!");
+        }
     }
 
     /**

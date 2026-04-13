@@ -530,73 +530,111 @@ public class ContentViewController {
             return "<div class='empty-note'>✏️ Нет содержимого. Начните писать заметку...</div>";
         }
 
-        // Экранируем HTML специальные символы
-        String html = text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
-
-        // Заголовки
-        html = html.replaceAll("(?m)^### (.*)$", "<h3>$1</h3>");
-        html = html.replaceAll("(?m)^## (.*)$", "<h2>$1</h2>");
-        html = html.replaceAll("(?m)^# (.*)$", "<h1>$1</h1>");
-
-        // Жирный текст
-        html = html.replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>");
-        html = html.replaceAll("__(.*?)__", "<strong>$1</strong>");
-
-        // Курсив
-        html = html.replaceAll("\\*(.*?)\\*", "<em>$1</em>");
-        html = html.replaceAll("_(.*?)_", "<em>$1</em>");
-
-        // Зачеркнутый текст
-        html = html.replaceAll("~~(.*?)~~", "<del>$1</del>");
-
-        // Код
-        html = html.replaceAll("`(.*?)`", "<code>$1</code>");
-        html = html.replaceAll("```(.*?)```", "<pre><code>$1</code></pre>");
-
-        // Списки
-        html = html.replaceAll("(?m)^- (.*)$", "<li>$1</li>");
-        html = html.replaceAll("(?m)^\\* (.*)$", "<li>$1</li>");
-        html = html.replaceAll("(?m)^\\d+\\. (.*)$", "<li>$1</li>");
-
-        // Оборачиваем списки в ul/ol
-        if (html.contains("<li>")) {
-            html = html.replaceAll("(<li>.*?</li>)\\s*(?=<li>)", "$1");
-            if (html.matches("(?s).*<li>.*</li>.*")) {
-                html = html.replaceAll("(?s)(<li>.*?</li>)+", "<ul>$0</ul>");
-            }
-        }
-
-        // Цитаты
-        html = html.replaceAll("(?m)^> (.*)$", "<blockquote>$1</blockquote>");
-
-        // Горизонтальные линии
-        html = html.replaceAll("(?m)^---$", "<hr/>");
-        html = html.replaceAll("(?m)^\\*\\*\\*$", "<hr/>");
-
-        // Ссылки
-        html = html.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href='$2'>$1</a>");
-
-        // Переносы строк в параграфы
-        String[] paragraphs = html.split("\\n\\s*\\n");
+        String[] lines = text.split("\\n");
         StringBuilder result = new StringBuilder();
-        for (String para : paragraphs) {
-            String trimmed = para.trim();
-            if (!trimmed.isEmpty() &&
-                    !trimmed.startsWith("<h") &&
-                    !trimmed.startsWith("<ul") &&
-                    !trimmed.startsWith("<ol") &&
-                    !trimmed.startsWith("<blockquote") &&
-                    !trimmed.startsWith("<pre") &&
-                    !trimmed.startsWith("<hr")) {
-                result.append("<p>").append(para.replace("\n", "<br/>")).append("</p>");
+
+        boolean inList = false;
+        boolean inBlockquote = false;
+
+        for (String line : lines) {
+            if (line.trim().startsWith(">")) {
+                if (!inBlockquote) {
+                    if (inList) {
+                        result.append("</ul>");
+                        inList = false;
+                    }
+                    result.append("<blockquote>");
+                    inBlockquote = true;
+                }
+                String quoteText = line.trim().substring(1).trim();
+                quoteText = escapeHtml(quoteText);
+                quoteText = applyInlineFormatting(quoteText);
+                result.append(quoteText).append("<br/>");
+                continue;
+            } else if (inBlockquote) {
+                result.append("</blockquote>");
+                inBlockquote = false;
+            }
+
+            // Экранируем HTML для остального текста
+            String htmlLine = escapeHtml(line);
+
+            // Заголовки
+            if (htmlLine.matches("^#{1,3} .*")) {
+                if (inList) {
+                    result.append("</ul>");
+                    inList = false;
+                }
+                if (htmlLine.startsWith("### ")) {
+                    result.append("<h3>").append(htmlLine.substring(4)).append("</h3>");
+                } else if (htmlLine.startsWith("## ")) {
+                    result.append("<h2>").append(htmlLine.substring(3)).append("</h2>");
+                } else if (htmlLine.startsWith("# ")) {
+                    result.append("<h1>").append(htmlLine.substring(2)).append("</h1>");
+                }
+                continue;
+            }
+
+            // Списки
+            if (htmlLine.matches("^[-*] .*")) {
+                if (!inList) {
+                    result.append("<ul>");
+                    inList = true;
+                }
+                String liText = htmlLine.substring(2);
+                liText = applyInlineFormatting(liText);
+                result.append("<li>").append(liText).append("</li>");
+                continue;
+            } else if (inList) {
+                result.append("</ul>");
+                inList = false;
+            }
+
+            // Горизонтальные линии
+            if (htmlLine.matches("^---+$") || htmlLine.matches("^\\*\\*\\*+$")) {
+                result.append("<hr/>");
+                continue;
+            }
+
+            // Применяем форматирование
+            htmlLine = applyInlineFormatting(htmlLine);
+
+            // Обычный текст
+            if (!htmlLine.trim().isEmpty()) {
+                result.append("<p>").append(htmlLine).append("</p>");
             } else {
-                result.append(para);
+                result.append("<br/>");
             }
         }
+
+        // Закрываем открытые теги
+        if (inList) result.append("</ul>");
+        if (inBlockquote) result.append("</blockquote>");
 
         return result.toString();
+    }
+
+    private String applyInlineFormatting(String text) {
+        if (text == null) return "";
+
+        // Жирный текст
+        String result = text.replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>");
+        result = result.replaceAll("__(.*?)__", "<strong>$1</strong>");
+
+        // Курсив
+        result = result.replaceAll("\\*(.*?)\\*", "<em>$1</em>");
+        result = result.replaceAll("_(.*?)_", "<em>$1</em>");
+
+        // Зачеркнутый
+        result = result.replaceAll("~~(.*?)~~", "<del>$1</del>");
+
+        // Код
+        result = result.replaceAll("`(.*?)`", "<code>$1</code>");
+
+        // Ссылки
+        result = result.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href='$2'>$1</a>");
+
+        return result;
     }
 
     /**

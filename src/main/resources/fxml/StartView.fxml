@@ -6,7 +6,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -16,6 +15,8 @@
         <StackPane styleClass="auth-container">
             <StackPane fx:id="PFirst" styleClass="auth-pane" visible="true">
                 <VBox alignment="CENTER" spacing="30" styleClass="auth-content">
+                    <StackPane fx:id="iconContainer" prefHeight="80" prefWidth="80"/>
+
                     <Label text="CloudNote" styleClass="app-title-auth"/>
 
                     <VBox spacing="12" alignment="CENTER" styleClass="button-container">
